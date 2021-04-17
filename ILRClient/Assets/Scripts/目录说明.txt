@@ -1,0 +1,4 @@
+Editor :编辑器扩展代码
+Hitfix :游戏核心逻辑代码，热更新用
+ILBinding ：ILRuntime的绑定代码，代码为自动生成
+MainModule ：游戏主模块，主要是启动热更新相关，不能被Editor外别的模块引用，只要是被外部模块访问的代码都不可以放这里面

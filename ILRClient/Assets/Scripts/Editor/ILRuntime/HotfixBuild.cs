@@ -1,34 +1,36 @@
+using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEngine;
 using UnityEditor.Compilation;
-using System.Collections.Generic;
-using System;
+using UnityEngine;
 
 [InitializeOnLoad]
 public class HotfixBuild
 {
     private const string ScriptAssembliesDir = "Library/ScriptAssemblies/";
+    private const string Name = "Hotfix";
     private const string HotfixDll = "Hotfix.dll";
-    private const string HotfixPdb = "Hotfix.pdb";
     private const string ScriptsPath = "Assets/Scripts/Hotfix";
     public const string BuildOutputPath = "BuildOutput/";
 
-    public static string DllFullPath { get { return string.Format("{0}{1}", BuildOutputPath, HotfixDll); } }
+    public static string DllFullPath { get { return string.Format("{0}{1}.dll", BuildOutputPath, Name); } }
     public static string UnityTmpDllFullPath { get { return string.Format("{0}{1}", ScriptAssembliesDir, HotfixDll); } }
     static HotfixBuild()
     {
         if (IsDisableAutoBuild())
             return;
-        FileInfo info = new FileInfo(UnityTmpDllFullPath);
-        do 
+        do
         {
-            if (!info.Exists)
+            FileInfo logicInfo = new FileInfo(string.Format("{0}{1}.Logic.dll", ScriptAssembliesDir, Name));
+            if (!logicInfo.Exists)
+                break;
+            FileInfo viewInfo = new FileInfo(string.Format("{0}{1}.View.dll", ScriptAssembliesDir, Name));
+            if (!viewInfo.Exists)
                 break;
             FileInfo dllInfo = new FileInfo(DllFullPath);
             if (!dllInfo.Exists)
                 break;
-            if (dllInfo.LastWriteTime > info.LastWriteTime)
+            if (dllInfo.LastWriteTime > logicInfo.LastWriteTime && dllInfo.LastWriteTime > viewInfo.LastWriteTime)
                 return;
         } while (false);
         DoBuild(true);
@@ -85,7 +87,9 @@ public class HotfixBuild
         };
         builder.excludeReferences = new string[]
         {
-            "Library/ScriptAssemblies/Hotfix.dll"
+            "Library/ScriptAssemblies/Hotfix.dll",
+            "Library/ScriptAssemblies/Hotfix.Logic.dll",
+            "Library/ScriptAssemblies/Hotfix.View.dll",
         };
         builder.buildFinished += OnBuildFinished;
         builder.buildStarted += delegate (string path) { Debug.Log("开始编译Hotfix"); };
@@ -119,6 +123,7 @@ public class HotfixBuild
 
     private static string CompilerMessageToString(CompilerMessage message)
     {
-        return string.Format("{0}\n(at{1}:{2})", message.message, message.file, message.line);
+        string filePath = Path.GetFullPath(message.file).Replace("\\", "/");
+        return string.Format("{0} (at {1}:{2})", message.message, filePath, message.line);
     }
 }

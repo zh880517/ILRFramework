@@ -8,7 +8,7 @@ public static class ILRuntimeCLRBinding
     {
         //用新的分析热更dll调用引用来生成绑定代码
         ILRuntime.Runtime.Enviorment.AppDomain domain = new ILRuntime.Runtime.Enviorment.AppDomain();
-        using (FileStream fs = new FileStream("Library/ScriptAssemblies/Hotfix.dll", FileMode.Open, FileAccess.Read))
+        using (FileStream fs = new FileStream(HotfixBuild.DllFullPath, FileMode.Open, FileAccess.Read))
         {
 	        domain.LoadAssembly(fs);
 	        //Crossbind Adapter is needed to generate the correct binding code

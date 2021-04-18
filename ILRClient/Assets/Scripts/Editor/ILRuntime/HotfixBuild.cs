@@ -66,6 +66,10 @@ public class HotfixBuild
     public static void DistableAutoBuild()
     {
         EditorPrefs.SetBool("_disableirlbuild_", !IsDisableAutoBuild());
+        if (!IsDisableAutoBuild())
+        {
+            DoBuild(IsDebugBuild());
+        }
     }
 
     public static bool IsDisableAutoBuild()
@@ -84,6 +88,10 @@ public class HotfixBuild
     public static void SwitchDebugMode()
     {
         EditorPrefs.SetBool("_enabledebugbuild_", !IsDebugBuild());
+        if (!IsDisableAutoBuild())
+        {
+            DoBuild(IsDebugBuild());
+        }
     }
 
     public static bool IsDebugBuild()

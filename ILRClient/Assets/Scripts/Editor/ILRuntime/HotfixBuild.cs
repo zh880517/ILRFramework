@@ -123,7 +123,7 @@ public class HotfixBuild
 
     private static string CompilerMessageToString(CompilerMessage message)
     {
-        string filePath = Path.GetFullPath(message.file).Replace("\\", "/");
-        return string.Format("{0} (at {1}:{2})", message.message, filePath, message.line);
+        string filePath = message.file.Replace("\\", "/");
+        return string.Format("{0}\nHotfixBuild() (at {1}:{2})\r\n", message.message, filePath, message.line);
     }
 }

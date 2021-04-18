@@ -1,7 +1,5 @@
-using System.Collections.Generic;
 using System.IO;
 using UnityEditor;
-using UnityEngine;
 [System.Reflection.Obfuscation(Exclude = true)]
 public static class ILRuntimeCLRBinding
 {
@@ -34,35 +32,4 @@ public static class ILRuntimeCLRBinding
         //var script = ILRuntime.Runtime.Enviorment.CrossBindingCodeGenerator.GenerateCrossBindingAdapterCode(typeof(TestClassBase), null);
     }
 
-#if ILRuntime
-    [MenuItem("ILRuntime/切换到Mono模式", false, 10)]
-    static void UseMono()
-    {
-        var old = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-        if (old.Contains("ILRuntime"))
-        {
-            string newDefine = old.Replace("ILRuntime;", "").Replace("ILRuntime", "");
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, newDefine);
-        }
-    }
-#else
-    [MenuItem("ILRuntime/切换到ILRuntime模式", false, 10)]
-    static void UseILRuntime()
-    {
-        var old = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
-        if (!old.Contains("ILRuntime"))
-        {
-            string newDefine;
-            if (old.EndsWith(";"))
-            {
-                newDefine = old + "ILRuntime";
-            }
-            else
-            {
-                newDefine = old + ";ILRuntime";
-            }
-            PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, newDefine);
-        }
-    }
-#endif
 }

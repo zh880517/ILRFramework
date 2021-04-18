@@ -17,7 +17,7 @@ public class HotfixBuild
     public static string UnityTmpDllFullPath { get { return string.Format("{0}{1}", ScriptAssembliesDir, HotfixDll); } }
     static HotfixBuild()
     {
-        if (IsDisableAutoBuild())
+        if (IsDisableAutoBuild() || Application.isPlaying)
             return;
         do
         {
@@ -33,7 +33,7 @@ public class HotfixBuild
             if (dllInfo.LastWriteTime > logicInfo.LastWriteTime && dllInfo.LastWriteTime > viewInfo.LastWriteTime)
                 return;
         } while (false);
-        DoBuild(true);
+        DoBuild(IsDebugBuild());
     }
 
     private static void CheckOutputPath()
@@ -61,6 +61,7 @@ public class HotfixBuild
         Menu.SetChecked("ILRuntime/禁用自动编译", IsDisableAutoBuild());
         return true;
     }
+
     [MenuItem("ILRuntime/禁用自动编译")]
     public static void DistableAutoBuild()
     {
@@ -71,6 +72,25 @@ public class HotfixBuild
     {
         return EditorPrefs.GetBool("_disableirlbuild_", false);
     }
+
+    [MenuItem("ILRuntime/DebudBuild", true)]
+    public static bool CheckDebugMode()
+    {
+        Menu.SetChecked("ILRuntime/DebudBuild", IsDebugBuild());
+        return !IsDisableAutoBuild();
+    }
+
+    [MenuItem("ILRuntime/DebudBuild")]
+    public static void SwitchDebugMode()
+    {
+        EditorPrefs.SetBool("_enabledebugbuild_", !IsDebugBuild());
+    }
+
+    public static bool IsDebugBuild()
+    {
+        return EditorPrefs.GetBool("_enabledebugbuild_", false);
+    }
+
 
     public static void DoBuild(bool debugMode)
     {
@@ -91,6 +111,12 @@ public class HotfixBuild
             "Library/ScriptAssemblies/Hotfix.Logic.dll",
             "Library/ScriptAssemblies/Hotfix.View.dll",
         };
+        if (!debugMode)
+        {
+            var buildOption = builder.compilerOptions;
+            buildOption.CodeOptimization = CodeOptimization.Release;
+            builder.compilerOptions = buildOption;
+        }
         builder.buildFinished += OnBuildFinished;
         builder.buildStarted += delegate (string path) { Debug.Log("开始编译Hotfix"); };
         

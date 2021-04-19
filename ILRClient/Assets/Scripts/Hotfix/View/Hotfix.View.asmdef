@@ -1,7 +1,8 @@
 {
     "name": "Hotfix.View",
+    "rootNamespace": "",
     "references": [
-        "GUID:cc47be11ec6aa90479c1e2e41ad3092a"
+        "Hotfix.Logic"
     ],
     "includePlatforms": [
         "Editor"

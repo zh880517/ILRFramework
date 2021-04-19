@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 namespace ECS.Core
 {
     public class Context
@@ -55,8 +55,8 @@ namespace ECS.Core
 
         public void DestroyEntity(Entity entity)
         {
-            if (!entity.Check(this))
-                return;
+            if (entity.IsDestroyed)
+                throw new System.Exception("Entity has destroyed");
             for (int i = 0; i < collectors.Count; ++i)
             {
                 collectors[i].Remove(entity);
@@ -66,29 +66,29 @@ namespace ECS.Core
 
         public T AddComponent<T>(Entity entity) where T : class, IComponent, new()
         {
-            if (!entity.Check(this) && entitis.ContainsKey(entity.Id))
-                return default(T);
+            if (entity.IsDestroyed)
+                throw new System.Exception("Entity has destroyed");
             return collectors[ComponentIdentity<T>.Id].Add(entity) as T;
         }
 
         public void SetComponentModify<T>(Entity entity) where T : class, IComponent, new()
         {
-            if (!entity.Check(this))
-                return;
+            if (entity.IsDestroyed)
+                throw new System.Exception("Entity has destroyed");
             collectors[ComponentIdentity<T>.Id].Modify(entity);
         }
 
         public T GetComponent<T>(Entity entity) where T : class, IComponent, new()
         {
-            if (!entity.Check(this))
-                return default(T);
+            if (entity.IsDestroyed)
+                throw new System.Exception("Entity has destroyed");
             return collectors[ComponentIdentity<T>.Id].Get(entity) as T;
         }
 
         public void RemoveComponent<T>(Entity entity) where T : class, IComponent, new()
         {
-            if (!entity.Check(this))
-                return;
+            if (entity.IsDestroyed)
+                throw new System.Exception("Entity has destroyed");
             collectors[ComponentIdentity<T>.Id].Remove(entity);
         }
 

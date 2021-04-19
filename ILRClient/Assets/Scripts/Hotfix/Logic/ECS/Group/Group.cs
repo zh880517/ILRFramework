@@ -2,11 +2,11 @@
 {
     public class Group<T> where T : class, IComponent, new()
     {
-        private readonly ComponentCollector<T> collector;
-        private int index;
+        private readonly IComponentCollectorT<T> collector;
+        private int index = 0;
         public int Count => collector.Count;
 
-        public Group(ComponentCollector<T> collector)
+        public Group(IComponentCollectorT<T> collector)
         {
             this.collector = collector;
         }
@@ -21,11 +21,10 @@
             return collector.GetValid(index++);
         }
 
-        public Entity NextWithComponent(out T component)
+        public bool TryGet(out Entity entity, out T component)
         {
-            var entity = collector.GetValid(index++, out IComponent comp);
-            component = comp as T;
-            return entity;
+            entity = collector.GetValid(index++, out component);
+            return entity != null;
         }
     }
 

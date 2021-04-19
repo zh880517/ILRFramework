@@ -15,7 +15,18 @@ namespace ECS.Core
 
         public void InitComponentCollector<T>() where T : class, IComponent, new()
         {
-            collectors[ComponentIdentity<T>.Id] = new ComponentCollector<T>();
+            if (ComponentIdentity<T>.Id == -1)
+            {
+                throw new System.Exception(string.Format("Component类型未初始化 => {0} ", typeof(T).FullName));
+            }
+            if (collectors[ComponentIdentity<T>.Id] != null)
+            {
+                throw new System.Exception(string.Format("ComponentId 重复或重复注册 => {0}", typeof(T).FullName));
+            }
+            if (!ComponentIdentity<T>.Unique)
+                collectors[ComponentIdentity<T>.Id] = new ComponentCollector<T>();
+            else
+                collectors[ComponentIdentity<T>.Id] = new UniqueComponentCollector<T>();
         }
 
         protected Entity Find(int id)
@@ -48,42 +59,37 @@ namespace ECS.Core
                 return;
             for (int i = 0; i < collectors.Count; ++i)
             {
-                collectors[i].Remove(entity.Id);
+                collectors[i].Remove(entity);
             }
-            entitis.Remove(idIndex);
+            entitis.Remove(entity.Id);
         }
 
         public T AddComponent<T>(Entity entity) where T : class, IComponent, new()
         {
             if (!entity.Check(this) && entitis.ContainsKey(entity.Id))
                 return default(T);
-            return collectors[ComponentIdentity<T>.Id].Add(entity.Id) as T;
+            return collectors[ComponentIdentity<T>.Id].Add(entity) as T;
         }
 
         public void SetComponentModify<T>(Entity entity) where T : class, IComponent, new()
         {
             if (!entity.Check(this))
                 return;
-            collectors[ComponentIdentity<T>.Id].Modify(entity.Id);
+            collectors[ComponentIdentity<T>.Id].Modify(entity);
         }
 
         public T GetComponent<T>(Entity entity) where T : class, IComponent, new()
         {
             if (!entity.Check(this))
                 return default(T);
-            return collectors[ComponentIdentity<T>.Id].Get(entity.Id) as T;
+            return collectors[ComponentIdentity<T>.Id].Get(entity) as T;
         }
 
         public void RemoveComponent<T>(Entity entity) where T : class, IComponent, new()
         {
             if (!entity.Check(this))
                 return;
-            collectors[ComponentIdentity<T>.Id].Remove(entity.Id);
-        }
-
-        public Group<T> CreatGroup<T>() where T : class, IComponent, new()
-        {
-            return new Group<T>(collectors[ComponentIdentity<T>.Id] as ComponentCollector<T>);
+            collectors[ComponentIdentity<T>.Id].Remove(entity);
         }
 
     }

@@ -2,20 +2,7 @@
 namespace ECS.Core
 {
 
-    public interface IComponentCollector
-    {
-        int Count { get;}
-        IComponent Add(int entityId);
-        IComponent Get(int entityId);
-        void Remove(int entityId);
-        void Modify(int entityId);
-        void RegistEventGroup(IEventGroup eventGroup);
-        Entity GetValid(int startIndex);
-        Entity GetValid(int startIndex, out IComponent component);
-        //void Tick();
-    }
-
-    public class ComponentCollector<T> : IComponentCollector where T : class, IComponent, new()
+    public class ComponentCollector<T> : IComponentCollectorT<T> where T : class, IComponent, new()
     {
         private class ComponentUnit
         {
@@ -49,55 +36,57 @@ namespace ECS.Core
             return unit;
         }
 
-        public IComponent Add(int entityId)
+        public IComponent Add(Entity entity)
         {
-            if (idIdxMap.TryGetValue(entityId, out int idx))
+            if (idIdxMap.TryGetValue(entity.Id, out int idx))
             {
                 return units[idx].Component;
             }
             var unit = CreateUnit();
-            idIdxMap.Add(entityId, idx);
+            idIdxMap.Add(entity.Id, idx);
+            unit.Owner = entity;
             ++Count;
             for (int i = 0; i < eventGroups.Count; ++i)
             {
-                eventGroups[i].OnAdd<T>(entityId);
+                eventGroups[i].OnAdd<T>(entity.Id);
             }
             return unit.Component;
         }
 
-        public IComponent Get(int entityId)
+        public IComponent Get(Entity entity)
         {
-            if (idIdxMap.TryGetValue(entityId, out int idx))
+            if (idIdxMap.TryGetValue(entity.Id, out int idx))
             {
                 return units[idx].Component;
             }
             return null;
         }
 
-        public void Modify(int entityId)
+        public void Modify(Entity entity)
         {
-            if (idIdxMap.ContainsKey(entityId))
+            if (idIdxMap.ContainsKey(entity.Id))
             {
                 for (int i=0; i<eventGroups.Count; ++i)
                 {
-                    eventGroups[i].OnModify<T>(entityId);
+                    eventGroups[i].OnModify<T>(entity.Id);
                 }
             }
         }
 
-        public void Remove(int entityId)
+        public void Remove(Entity entity)
         {
-            if (idIdxMap.TryGetValue(entityId, out int idx))
+            if (idIdxMap.TryGetValue(entity.Id, out int idx))
             {
                 var unit = units[idx];
-                unit.Component.Reset();
+                if (unit.Component is IReset resetComp)
+                    resetComp.Reset();
                 unit.Owner = null;
                 unUsedIdxs.Enqueue(idx);
-                idIdxMap.Remove(entityId);
+                idIdxMap.Remove(entity.Id);
                 --Count;
                 for (int i = 0; i < eventGroups.Count; ++i)
                 {
-                    eventGroups[i].OnRemove<T>(entityId);
+                    eventGroups[i].OnRemove<T>(entity.Id);
                 }
             }
         }
@@ -133,6 +122,21 @@ namespace ECS.Core
         public void RegistEventGroup(IEventGroup eventGroup)
         {
             eventGroups.Add(eventGroup);
+        }
+
+        public Entity GetValid(int startIndex, out T component)
+        {
+            for (int i = startIndex; i < units.Count; ++i)
+            {
+                var unit = units[i];
+                if (unit.Owner != null)
+                {
+                    component = unit.Component;
+                    return unit.Owner;
+                }
+            }
+            component = null;
+            return null;
         }
     }
 

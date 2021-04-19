@@ -17,6 +17,7 @@
             }
         }
         public static int Id { get; set; } = -1;
+        public static bool Unique { get; set; }
         public static string Name { get; private set; }
     }
 

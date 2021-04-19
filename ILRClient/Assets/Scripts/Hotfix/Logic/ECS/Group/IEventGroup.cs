@@ -1,4 +1,6 @@
-﻿namespace ECS.Core
+﻿using System.Collections.Generic;
+
+namespace ECS.Core
 {
     public enum ComponentEvent
     {
@@ -19,6 +21,7 @@
     public interface IEventGroup<TEntity> : IEventGroup where TEntity : Entity
     {
         TEntity Next();
+        void CopyToList(List<TEntity> entitis);
     }
 
 }

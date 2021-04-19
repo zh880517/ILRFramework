@@ -3,54 +3,45 @@
     public class Entity
     {
         public int Id { get; private set; }
-        private int generation;
         protected Context owner { get; private set; }
+
+        public bool IsDestroyed { get; private set; } = false;
 
         public Entity(Context context, int id)
         {
             Id = id;
-            generation = context.Generation;
             owner = context;
         }
-
+        /// <summary>
+        /// 销毁Entity
+        /// 最好创建一个组件，标记这个Entity为Destroy状态，在单独的CleanupSystem里面遍历销毁
+        /// 防止在处理Entity的时候调用的接口将Entity删除造成逻辑错误
+        /// </summary>
         public void Destroy()
         {
+            if (IsDestroyed)
+                return;
+            if (Id == 1)
+            {
+                ILLog.LogError("UniqueEntity 不能调用 Destroy()");
+                return;
+            }
             if (owner != null)
             {
                 owner.DestroyEntity(this);
             }
             owner = null;
-
+            IsDestroyed = true;
         }
 
         public bool Check(Context context)
         {
-            return owner == context && context.Generation == generation;
+            return owner == context;
         }
 
         public static implicit operator bool(Entity exists)
         {
-            return exists != null && exists.owner != null && exists.owner.Generation == exists.generation;
-        }
-
-        public T Get<T>() where T : class, IComponent, new()
-        {
-            return owner.GetComponent<T>(this);
-        }
-
-        public T Add<T>() where T : class, IComponent, new()
-        {
-            return owner.AddComponent<T>(this);
-        }
-
-        public void Modify<T>() where T : class, IComponent, new()
-        {
-            owner.SetComponentModify<T>(this);
-        }
-
-        public void Remove<T>() where T : class, IComponent, new()
-        {
-            owner.RemoveComponent<T>(this);
+            return exists != null && !exists.IsDestroyed && exists.owner != null;
         }
 
     }

@@ -5,9 +5,12 @@ namespace ECS.Core
     public class TContext<TEntity> : Context where TEntity : Entity
     {
         protected Func<Context, int, TEntity> creatFacory;
+
+        public TEntity Unique { get; private set; }
         public TContext(int componentTypeCount, Func<Context, int, TEntity> creatFunc) : base(componentTypeCount)
         {
             creatFacory = creatFunc;
+            Unique = CreatEntity();
         }
 
         public TEntity CreatEntity()
@@ -21,6 +24,11 @@ namespace ECS.Core
         public TEntity FindEntity(int id)
         {
             return Find(id) as TEntity;
+        }
+
+        public Group<T> CreatGroup<T>() where T : class, IComponent, new()
+        {
+            return new Group<T>(collectors[ComponentIdentity<T>.Id] as IComponentCollectorT<T>);
         }
 
         public EventGroup<TEntity> CreatEventGroup<TComponent>(ComponentEvent eventMask) where TComponent : IComponent

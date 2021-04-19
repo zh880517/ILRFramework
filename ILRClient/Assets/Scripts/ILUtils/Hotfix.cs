@@ -3,7 +3,7 @@
 public class Hotfix : MonoBehaviour
 {
     private static Hotfix _Instance;
-    public static IAppAssembly Assembly { get { return _Instance?.AppAssembly; } }
+    public static IAppAssembly Assembly => _Instance?.AppAssembly;
     private IAppAssembly AppAssembly;
     private IStaticMethod UpdateMethod;
     private IStaticMethod LateUpdateMethod;

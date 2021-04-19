@@ -88,5 +88,20 @@ namespace ECS.Core
         {
             return idIndexMap.Count == 0;
         }
+
+        public void CopyToList(List<TEntity> entitis)
+        {
+            entitis.Clear();
+            for (int i = 0; i < modifyEnitis.Count; ++i)
+            {
+                int id = modifyEnitis[i];
+                if (id != 0)
+                {
+                    var entity = context.FindEntity(id);
+                    if (entity != null)
+                        entitis.Add(entity);
+                }
+            }
+        }
     }
 }

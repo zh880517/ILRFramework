@@ -19,7 +19,10 @@ public static class ILRuntimeCLRBinding
                 "Assets/Scripts/ILBinding/Binder",
                 customExportDefine.valueTypeBinders,
                 customExportDefine.delegateTypes,
-                "UnityEngine_Debug_Binding"
+                "UnityEngine_Debug_Binding",
+                "UnityEngine_Vector3_Binding",
+                "UnityEngine_Vector2_Binding",
+                "UnityEngine_Quaternion_Binding"
                 );
 	        AssetDatabase.Refresh();
         }

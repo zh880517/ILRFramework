@@ -33,7 +33,7 @@ public class HotfixBuild
             if (dllInfo.LastWriteTime > logicInfo.LastWriteTime && dllInfo.LastWriteTime > viewInfo.LastWriteTime)
                 return;
         } while (false);
-        DoBuild(IsDebugBuild());
+        DoBuild(IsDebugBuild(), false);
     }
 
     private static void CheckOutputPath()
@@ -100,7 +100,7 @@ public class HotfixBuild
     }
 
 
-    public static void DoBuild(bool debugMode)
+    public static void DoBuild(bool debugMode, bool waitComplete = true)
     {
         CheckOutputPath();
         var csFiles = Directory.GetFiles(ScriptsPath, "*.cs", SearchOption.AllDirectories);
@@ -129,6 +129,11 @@ public class HotfixBuild
         builder.buildStarted += delegate (string path) { Debug.Log("开始编译Hotfix"); };
         
         builder.Build();
+        while (waitComplete && builder.status != AssemblyBuilderStatus.Finished)
+        {
+            EditorUtility.DisplayProgressBar("编译", "等待编译结束", 0.5f);
+        }
+        EditorUtility.ClearProgressBar();
     }
 
     private static void OnBuildFinished(string assemblyPath, CompilerMessage[] compilerMessages)
@@ -152,6 +157,7 @@ public class HotfixBuild
         else
         {
             Debug.Log("Hotfix 模块编译完成");
+            File.Copy(DllFullPath, string.Format("Assets/Resources/{0}.bytes", HotfixDll), true);
         }
     }
 

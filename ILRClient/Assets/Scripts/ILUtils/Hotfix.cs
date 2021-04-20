@@ -1,4 +1,4 @@
-﻿using UnityEngine;
+using UnityEngine;
 
 public class Hotfix : MonoBehaviour
 {
@@ -40,8 +40,9 @@ public class Hotfix : MonoBehaviour
     {
         if (_Instance)
         {
+            _Instance.AppAssembly.Destroy();
             Destroy(_Instance.gameObject);
-
+            _Instance = null;
         }
     }
 
@@ -61,7 +62,7 @@ public class Hotfix : MonoBehaviour
             Debug.LogError("HotfixApp 缺少 Init，Hotfix 模块的功能可能无法启用");
         }
     }
-    
+
     private void Update()
     {
         UpdateMethod?.Run();

@@ -7,7 +7,12 @@ public class App : MonoBehaviour
     {
         Instance = this;
 
+#if UNITY_EDITOR
         Hotfix.InitByPath("BuildOutput/", "Hotfix");
+#else
+        Hotfix.Init(Resources.Load<TextAsset>("HotFix.dll").bytes, null);
+        
+#endif
     }
 
     private void OnDestroy()

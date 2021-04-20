@@ -52,6 +52,7 @@ public class ILAppAssembly : IAppAssembly
     
     public void Destroy()
     {
+        ILRegister.DoDestroy(Domain);
         Domain = null;
         if (dllStream != null)
         {

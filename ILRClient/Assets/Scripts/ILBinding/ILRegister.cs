@@ -14,10 +14,19 @@ public static class ILRegister
 		//注册绑定的导出类
 		//Debug的功能需要打印堆栈，所以这里要自定义，不能用系统生成的
 		UnityEngineDebugBinding.Register(appdomain);
+        appdomain.RegisterValueTypeBinder(typeof(UnityEngine.Vector3), new Vector3Binder());
+        appdomain.RegisterValueTypeBinder(typeof(UnityEngine.Quaternion), new QuaternionBinder());
+        appdomain.RegisterValueTypeBinder(typeof(UnityEngine.Vector2), new Vector2Binder());
 		CLRBindings.Initialize(appdomain);
         appdomain.RegisterCrossBindingAdaptor(new CoroutineAdapter());
 
         LitJson.JsonMapper.RegisterILRuntimeCLRRedirection(appdomain);
+	}
+
+	public static void DoDestroy(AppDomain appdomain)
+    {
+		CLRBindings.Shutdown(appdomain);
+
 	}
 
 

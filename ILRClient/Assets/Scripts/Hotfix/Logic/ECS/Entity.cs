@@ -1,4 +1,4 @@
-﻿namespace ECS.Core
+namespace ECS.Core
 {
     public class Entity
     {
@@ -32,6 +32,11 @@
             }
             owner = null;
             IsDestroyed = true;
+        }
+
+        public override int GetHashCode()
+        {
+            return Id.GetHashCode();
         }
 
         public bool Check(Context context)

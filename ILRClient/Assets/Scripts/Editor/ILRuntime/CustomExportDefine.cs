@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
@@ -10,9 +10,9 @@ public class CustomExportDefine
 
     public CustomExportDefine()
     {
-        VT<Vector3>();
-        VT<Vector2>();
-        VT<Quaternion>();
+//         VT<Vector3>();
+//         VT<Vector2>();
+//         VT<Quaternion>();
 
         DT<UnityEngine.Events.UnityAction<float>>();
         DT<UnityEngine.Events.UnityAction<Vector2>>();

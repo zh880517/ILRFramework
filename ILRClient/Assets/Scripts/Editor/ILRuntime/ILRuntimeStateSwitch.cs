@@ -6,13 +6,13 @@ public static class ILRuntimeStateSwitch
 
     public static List<string> GetDefine()
     {
-        PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, out var defines);
-        return new List<string>(defines);
+        var defines = PlayerSettings.GetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup);
+        return new List<string>(defines.Split(';'));
     }
 
     public static void SetDefine(List<string> defines)
     {
-        PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, defines.ToString());
+        PlayerSettings.SetScriptingDefineSymbolsForGroup(EditorUserBuildSettings.selectedBuildTargetGroup, string.Join(";", defines));
     }
 
 #if ILRuntime

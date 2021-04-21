@@ -158,6 +158,10 @@ public class HotfixBuild
         else
         {
             Debug.Log("Hotfix 模块编译完成");
+            if (!Directory.Exists("Assets/Resources"))
+            {
+                Directory.CreateDirectory("Assets/Resources");
+            }
             File.Copy(DllFullPath, string.Format("Assets/Resources/{0}.bytes", HotfixDll), true);
         }
     }

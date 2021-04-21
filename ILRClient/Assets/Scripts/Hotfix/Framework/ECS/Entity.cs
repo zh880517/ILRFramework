@@ -36,7 +36,7 @@ namespace ECS.Core
 
         public override int GetHashCode()
         {
-            return Id.GetHashCode();
+            return Id;
         }
 
         public bool Check(Context context)

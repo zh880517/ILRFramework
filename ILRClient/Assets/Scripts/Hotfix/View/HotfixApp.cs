@@ -5,6 +5,8 @@ public static class HotfixApp
     private static void Init()
     {
         ILLog.Log("hahahah");
+
+        LogicContext.Creat();
         try
         {
             throw new System.Exception("hhh");

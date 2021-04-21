@@ -1,4 +1,4 @@
-﻿namespace ECS.Core
+namespace ECS.Core
 {
     public class Group<T> where T : class, IComponent, new()
     {
@@ -18,12 +18,12 @@
 
         public Entity Next()
         {
-            return collector.GetValid(index++);
+            return collector.Find(ref index);
         }
 
         public bool TryGet(out Entity entity, out T component)
         {
-            entity = collector.GetValid(index++, out component);
+            entity = collector.Find(ref index, out component);
             return entity != null;
         }
     }

@@ -2,6 +2,7 @@
     "name": "Hotfix.View",
     "rootNamespace": "",
     "references": [
+        "Hotfix.Framework",
         "Hotfix.Logic"
     ],
     "includePlatforms": [
@@ -11,7 +12,7 @@
     "allowUnsafeCode": false,
     "overrideReferences": false,
     "precompiledReferences": [],
-    "autoReferenced": true,
+    "autoReferenced": false,
     "defineConstraints": [],
     "versionDefines": [],
     "noEngineReferences": false

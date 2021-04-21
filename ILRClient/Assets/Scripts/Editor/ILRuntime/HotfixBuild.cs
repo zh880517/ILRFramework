@@ -116,6 +116,7 @@ public class HotfixBuild
         builder.excludeReferences = new string[]
         {
             "Library/ScriptAssemblies/Hotfix.dll",
+            "Library/ScriptAssemblies/Hotfix.Framework.dll",
             "Library/ScriptAssemblies/Hotfix.Logic.dll",
             "Library/ScriptAssemblies/Hotfix.View.dll",
         };

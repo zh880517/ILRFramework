@@ -1,8 +1,10 @@
 {
-    "name": "Hotfix.Logic",
+    "name": "Hotfix.Framework",
     "rootNamespace": "",
     "references": [
-        "Hotfix.Framework"
+        "ILRuntime",
+        "Thirdparty",
+        "ILUtils"
     ],
     "includePlatforms": [
         "Editor"

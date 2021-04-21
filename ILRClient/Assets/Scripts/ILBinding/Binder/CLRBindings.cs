@@ -27,10 +27,11 @@ namespace ILRuntime.Runtime.Generated
         {
             System_Object_Binding.Register(app);
             System_String_Binding.Register(app);
+            System_Int32_Binding.Register(app);
             System_Exception_Binding.Register(app);
+            UnityEngine_Vector3_Binding.Register(app);
             System_Collections_Generic_Dictionary_2_Int32_ILTypeInstance_Binding.Register(app);
             System_Collections_Generic_List_1_ILTypeInstance_Binding.Register(app);
-            System_Int32_Binding.Register(app);
 
             ILRuntime.CLR.TypeSystem.CLRType __clrType = null;
             __clrType = (ILRuntime.CLR.TypeSystem.CLRType)app.GetType (typeof(UnityEngine.Vector3));

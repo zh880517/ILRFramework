@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 namespace ECS.Core
 {
 
@@ -36,10 +36,17 @@ namespace ECS.Core
             return unit;
         }
 
-        public IComponent Add(Entity entity)
+        public IComponent Add(Entity entity, bool forceModify)
         {
             if (idIdxMap.TryGetValue(entity.Id, out int idx))
             {
+                if (forceModify)
+                {
+                    for (int i = 0; i < eventGroups.Count; ++i)
+                    {
+                        eventGroups[i].OnModify<T>(entity.Id);
+                    }
+                }
                 return units[idx].Component;
             }
             var unit = CreateUnit();
@@ -62,15 +69,17 @@ namespace ECS.Core
             return null;
         }
 
-        public void Modify(Entity entity)
+        public IComponent Modify(Entity entity)
         {
-            if (idIdxMap.ContainsKey(entity.Id))
+            if (idIdxMap.TryGetValue(entity.Id, out int idx))
             {
                 for (int i=0; i<eventGroups.Count; ++i)
                 {
                     eventGroups[i].OnModify<T>(entity.Id);
                 }
+                return units[idx].Component;
             }
+            return null;
         }
 
         public void Remove(Entity entity)
@@ -91,31 +100,18 @@ namespace ECS.Core
             }
         }
 
-        public Entity GetValid(int startIndex)
+        public Entity Find(ref int startIndex, System.Func<T, bool> condition)
         {
             for (int i=startIndex; i<units.Count; ++i)
             {
                 var unit = units[i];
-                if (unit.Owner != null)
+                if (unit.Owner != null && (condition == null || condition(unit.Component)))
                 {
+                    startIndex = i + 1;
                     return unit.Owner;
                 }
             }
-            return null;
-        }
-
-        public Entity GetValid(int startIndex, out IComponent component)
-        {
-            for (int i = startIndex; i < units.Count; ++i)
-            {
-                var unit = units[i];
-                if (unit.Owner != null)
-                {
-                    component = unit.Component;
-                    return unit.Owner;
-                }
-            }
-            component = null;
+            startIndex = units.Count;
             return null;
         }
 
@@ -124,17 +120,19 @@ namespace ECS.Core
             eventGroups.Add(eventGroup);
         }
 
-        public Entity GetValid(int startIndex, out T component)
+        public Entity Find(ref int startIndex, out T component, System.Func<T, bool> condition)
         {
             for (int i = startIndex; i < units.Count; ++i)
             {
                 var unit = units[i];
-                if (unit.Owner != null)
+                if (unit.Owner != null && condition == null || condition(unit.Component))
                 {
+                    startIndex = i + 1;
                     component = unit.Component;
                     return unit.Owner;
                 }
             }
+            startIndex = units.Count;
             component = null;
             return null;
         }

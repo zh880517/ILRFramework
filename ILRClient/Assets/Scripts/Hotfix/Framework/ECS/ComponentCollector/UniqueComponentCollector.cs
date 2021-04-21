@@ -9,10 +9,16 @@ namespace ECS.Core
 
         private Entity uniqueEntity;
         private T uniqueComponent;
-        public IComponent Add(Entity entity)
+        public IComponent Add(Entity entity, bool forceModify)
         {
             if (uniqueEntity == entity)
+            {
+                for (int i = 0; i < eventGroups.Count; ++i)
+                {
+                    eventGroups[i].OnModify<T>(entity.Id);
+                }
                 return uniqueComponent;
+            }
             else
             {
                 Remove(entity);
@@ -36,38 +42,31 @@ namespace ECS.Core
             return null;
         }
 
-        public Entity GetValid(int startIndex, out T component)
+        public Entity Find(ref int startIndex, out T component, System.Func<T, bool> condition)
         {
-            if (startIndex == 0 && uniqueEntity != null)
+            if (startIndex == 0 && uniqueEntity != null && (condition == null || condition(uniqueComponent)))
             {
+                startIndex = 1;
                 component = uniqueComponent;
                 return uniqueEntity;
             }
             component = null;
+            startIndex = 1;
             return null;
         }
 
-        public Entity GetValid(int startIndex)
+        public Entity Find(ref int startIndex, System.Func<T, bool> condition)
         {
-            if (startIndex == 0 && uniqueEntity != null)
+            if (startIndex == 0 && uniqueEntity != null && (condition == null || condition(uniqueComponent)))
             {
+                startIndex = 1;
                 return uniqueEntity;
             }
+            startIndex = 1;
             return null;
         }
 
-        public Entity GetValid(int startIndex, out IComponent component)
-        {
-            if (startIndex == 0 && uniqueEntity != null)
-            {
-                component = uniqueComponent;
-                return uniqueEntity;
-            }
-            component = null;
-            return null;
-        }
-
-        public void Modify(Entity entity)
+        public IComponent Modify(Entity entity)
         {
             if (uniqueEntity == entity)
             {
@@ -75,7 +74,9 @@ namespace ECS.Core
                 {
                     eventGroups[i].OnModify<T>(entity.Id);
                 }
+                return uniqueComponent;
             }
+            return null;
         }
 
         public void RegistEventGroup(IEventGroup eventGroup)

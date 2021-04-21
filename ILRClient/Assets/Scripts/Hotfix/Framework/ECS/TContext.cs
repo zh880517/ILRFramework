@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace ECS.Core
 {
@@ -24,6 +24,12 @@ namespace ECS.Core
         public TEntity FindEntity(int id)
         {
             return Find(id) as TEntity;
+        }
+
+        public TEntity FindComponent<T>(ref int startIndex, out T component, Func<T, bool> match = null) where T : class, IComponent, new()
+        {
+            var collector = collectors[ComponentIdentity<T>.Id] as IComponentCollectorT<T>;
+            return collector.Find(ref startIndex, out component, match) as TEntity;
         }
 
         public Group<T> CreatGroup<T>() where T : class, IComponent, new()

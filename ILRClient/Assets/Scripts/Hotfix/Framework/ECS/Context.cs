@@ -64,18 +64,18 @@ namespace ECS.Core
             entitis.Remove(entity.Id);
         }
 
-        public T AddComponent<T>(Entity entity) where T : class, IComponent, new()
+        public T AddComponent<T>(Entity entity, bool forceModify) where T : class, IComponent, new()
         {
             if (entity.IsDestroyed)
                 throw new System.Exception("Entity has destroyed");
-            return collectors[ComponentIdentity<T>.Id].Add(entity) as T;
+            return collectors[ComponentIdentity<T>.Id].Add(entity, forceModify) as T;
         }
 
-        public void SetComponentModify<T>(Entity entity) where T : class, IComponent, new()
+        public T ModifyComponent<T>(Entity entity) where T : class, IComponent, new()
         {
             if (entity.IsDestroyed)
                 throw new System.Exception("Entity has destroyed");
-            collectors[ComponentIdentity<T>.Id].Modify(entity);
+            return collectors[ComponentIdentity<T>.Id].Modify(entity) as T;
         }
 
         public T GetComponent<T>(Entity entity) where T : class, IComponent, new()

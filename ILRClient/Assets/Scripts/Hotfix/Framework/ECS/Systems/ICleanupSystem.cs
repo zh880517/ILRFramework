@@ -1,7 +1,7 @@
-﻿
+
 namespace ECS.Core
 {
-    public interface ICleanupSystem
+    public interface ICleanupSystem : ISystem
     {
         void OnCleanup();
     }

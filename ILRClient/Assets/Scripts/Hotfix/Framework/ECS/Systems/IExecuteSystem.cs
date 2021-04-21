@@ -1,6 +1,6 @@
-﻿namespace ECS.Core
+namespace ECS.Core
 {
-    public interface IExecuteSystem
+    public interface IExecuteSystem : ISystem
     {
         void OnExecute();
     }

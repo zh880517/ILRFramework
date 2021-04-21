@@ -1,6 +1,6 @@
-﻿namespace ECS.Core
+namespace ECS.Core
 {
-    public interface ITearDownSystem
+    public interface ITearDownSystem :ISystem
     {
         void OnTearDown();
     }

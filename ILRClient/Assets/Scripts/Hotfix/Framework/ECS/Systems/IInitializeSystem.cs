@@ -1,6 +1,6 @@
-﻿namespace ECS.Core
+namespace ECS.Core
 {
-    public interface IInitializeSystem
+    public interface IInitializeSystem : ISystem
     {
         void OnInitialize();
     }

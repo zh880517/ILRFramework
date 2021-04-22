@@ -3,7 +3,8 @@
     "rootNamespace": "",
     "references": [
         "Hotfix.Framework",
-        "Hotfix.Logic"
+        "Hotfix.Logic",
+        "Thirdparty"
     ],
     "includePlatforms": [
         "Editor"

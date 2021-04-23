@@ -100,6 +100,30 @@ namespace ECS.Core
             }
         }
 
+        public void RemoveAll()
+        {
+            if (Count > 0)
+            {
+                for (int i = 0; i < units.Count; ++i)
+                {
+                    var unit = units[i];
+                    if (unit.Owner != null)
+                    {
+                        if (unit.Component is IReset resetComp)
+                            resetComp.Reset();
+                        unUsedIdxs.Enqueue(i);
+                        idIdxMap.Remove(unit.Owner.Id);
+                        for (int j = 0; j < eventGroups.Count; ++j)
+                        {
+                            eventGroups[j].OnRemove<T>(unit.Owner.Id);
+                        }
+                        --Count;
+                        unit.Owner = null;
+                    }
+                }
+            }
+        }
+
         public Entity Find(ref int startIndex, System.Func<T, bool> condition)
         {
             for (int i=startIndex; i<units.Count; ++i)
@@ -136,6 +160,7 @@ namespace ECS.Core
             component = null;
             return null;
         }
+
     }
 
 }

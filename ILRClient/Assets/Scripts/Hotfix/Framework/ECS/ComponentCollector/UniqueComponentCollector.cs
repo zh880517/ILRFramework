@@ -88,12 +88,29 @@ namespace ECS.Core
         {
             if (entity == uniqueEntity)
             {
-                uniqueEntity = null;
+                int id = uniqueEntity.Id;
                 if (uniqueEntity is IReset resetComp)
                     resetComp.Reset();
+                uniqueEntity = null;
                 for (int i = 0; i < eventGroups.Count; ++i)
                 {
-                    eventGroups[i].OnRemove<T>(entity.Id);
+                    eventGroups[i].OnRemove<T>(id);
+                }
+            }
+        }
+
+        public void RemoveAll()
+        {
+            if (uniqueEntity != null)
+            {
+                int id = uniqueEntity.Id;
+                if (uniqueEntity is IReset resetComp)
+                    resetComp.Reset();
+                uniqueEntity = null;
+
+                for (int i = 0; i < eventGroups.Count; ++i)
+                {
+                    eventGroups[i].OnRemove<T>(id);
                 }
             }
         }

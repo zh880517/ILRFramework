@@ -1,4 +1,4 @@
-﻿namespace ECS.Core
+namespace ECS.Core
 {
 
     public class ComponentIdentity<T> where T : IComponent
@@ -17,7 +17,7 @@
             }
         }
         public static int Id { get; set; } = -1;
-        public static bool Unique { get; set; }
+        public static bool Unique { get; set; } = false;
         public static string Name { get; private set; }
     }
 

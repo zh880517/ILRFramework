@@ -1,39 +1,40 @@
 using System.Collections.Generic;
 using System.IO;
+using System.Text;
 
 public class GeneratorFolder
 {
     private Dictionary<string, string> FileContents = new Dictionary<string, string>();
     public string DirectoryPath { get; private set; }
-    private bool DeleteOldFile;
+    private static UTF8Encoding encoding = new UTF8Encoding(false);
+    private System.Func<string, bool> ignoreFileMatch;
+    private string externName;
 
-    public GeneratorFolder(string path, bool deleteOldFile)
+    public GeneratorFolder(string path, string externName, System.Func<string, bool> ignoreFileMatch = null)
     {
         DirectoryPath = path;
         if (!path.EndsWith("/"))
             DirectoryPath += "/";
-        DeleteOldFile = deleteOldFile;
+        this.ignoreFileMatch = ignoreFileMatch;
+        this.externName = externName;
     }
 
     public void AddFile(string name, string content)
     {
-        FileContents[name] = content;
+        FileContents[$"{name}.{externName}"] = content;
     }
 
-    public void WriteFile(string externName)
+    public void WriteFile()
     {
         var dirInfo = new DirectoryInfo(DirectoryPath);
         if (dirInfo.Exists)
         {
-            if (DeleteOldFile)
+            var files = dirInfo.GetFiles(string.Format("*.{0}", externName));
+            foreach (var file in files)
             {
-                var files = dirInfo.GetFiles(string.Format("*.{0}", externName));
-                foreach (var file in files)
+                if (!FileContents.ContainsKey(file.Name) && (ignoreFileMatch == null || !ignoreFileMatch(file.Name)))
                 {
-                    if (!FileContents.ContainsKey(file.Name))
-                    {
-                        file.Delete();
-                    }
+                    file.Delete();
                 }
             }
         }
@@ -46,12 +47,12 @@ public class GeneratorFolder
             string filePath = string.Format("{0}{1}.{2}", DirectoryPath, kv.Key, externName);
             if (File.Exists(filePath))
             {
-                if (File.ReadAllText(filePath) == kv.Value)
+                if (File.ReadAllText(filePath, encoding) == kv.Value)
                 {
                     continue;
                 }
             }
-            File.WriteAllText(filePath, kv.Value);
+            File.WriteAllText(filePath, kv.Value, encoding);
         }
     }
 

@@ -92,5 +92,10 @@ namespace ECS.Core
             collectors[ComponentIdentity<T>.Id].Remove(entity);
         }
 
+        public void RemoveAll<T>() where T : class, IComponent, new()
+        {
+            collectors[ComponentIdentity<T>.Id].RemoveAll();
+        }
+
     }
 }

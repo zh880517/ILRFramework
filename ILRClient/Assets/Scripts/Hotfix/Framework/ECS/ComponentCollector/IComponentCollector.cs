@@ -6,6 +6,7 @@ namespace ECS.Core
         IComponent Add(Entity entity, bool forceModify);
         IComponent Get(Entity entity);
         void Remove(Entity entity);
+        void RemoveAll();
         IComponent Modify(Entity entity);
         void RegistEventGroup(IEventGroup eventGroup);
     }

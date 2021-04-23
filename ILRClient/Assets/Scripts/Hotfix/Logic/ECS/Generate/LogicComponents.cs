@@ -4,7 +4,7 @@ public static partial class LogicComponents
     static LogicComponents()
     {
         OnContextCreat = DoContentInit;
-        GetComponentCount = () => { return 0; };
+        ComponentCount = 0;
         InitComponentsIdentity();
     }
 

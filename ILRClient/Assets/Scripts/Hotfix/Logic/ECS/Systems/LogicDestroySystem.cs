@@ -1,7 +1,6 @@
-using ECS.Core;
-public class LogicDestroySystem : ICleanupSystem
+public class LogicDestroySystem : ECS.Core.ICleanupSystem
 {
-    private readonly Group<LogicDestroy> group;
+    private readonly ECS.Core.Group<LogicDestroy> group;
     public LogicDestroySystem(LogicContext context)
     {
         group = context.CreatGroup<LogicDestroy>();
@@ -11,7 +10,7 @@ public class LogicDestroySystem : ICleanupSystem
     {
         if (group.Count > 0)
         {
-            while (group.TryGet(out Entity entity, out _))
+            while (group.TryGet(out ECS.Core.Entity entity, out _))
             {
                 entity.Destroy();
             }

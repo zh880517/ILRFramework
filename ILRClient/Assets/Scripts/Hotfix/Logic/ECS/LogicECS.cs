@@ -15,7 +15,7 @@ public class LogicEntity : ECS.Core.TEntity<ILogicComponent>
 public static partial class LogicComponents
 {
     public static System.Action<LogicContext> OnContextCreat;
-    public static System.Func<int> GetComponentCount;
+    public static int ComponentCount { get; private set; }
 }
 
 public class LogicContext : ECS.Core.TContext<LogicEntity>
@@ -31,7 +31,7 @@ public class LogicContext : ECS.Core.TContext<LogicEntity>
 
     public static LogicContext Creat()
     {
-        var contxt = new LogicContext(LogicComponents.GetComponentCount());
+        var contxt = new LogicContext(LogicComponents.ComponentCount);
         LogicComponents.OnContextCreat(contxt);
         return contxt;
     }

@@ -9,21 +9,15 @@ public class CodeWriter
     public struct Scop : System.IDisposable
     {
         private readonly CodeWriter writer;
-        private bool emptyLine;
-        public Scop(CodeWriter writer, bool emptyLine = true)
+        public Scop(CodeWriter writer)
         {
             writer.BeginScope();
             this.writer = writer;
-            this.emptyLine = emptyLine;
         }
 
         public void Dispose()
         {
             writer.EndScope();
-            if (emptyLine)
-            {
-                writer.EmptyLine();
-            }
         }
     }
 
@@ -31,14 +25,14 @@ public class CodeWriter
     {
         NewLine();
         Stream.Append('{');
-        tabCount += 4;
+        tabCount += 1;
         NewLine();
         return this;
     }
 
     public CodeWriter EndScope()
     {
-        tabCount -= 4;
+        tabCount -= 1;
         NewLine();
         Stream.Append('}');
         NewLine();
@@ -49,6 +43,7 @@ public class CodeWriter
     {
         NewLine();
         Stream.Append('{');
+        EmptyLine();
         Stream.Append('}');
         NewLine();
         if (emptyLine)

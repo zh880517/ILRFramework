@@ -44,7 +44,7 @@ public class GeneratorFolder
         }
         foreach (var kv in FileContents)
         {
-            string filePath = string.Format("{0}{1}.{2}", DirectoryPath, kv.Key, externName);
+            string filePath = string.Format("{0}{1}", DirectoryPath, kv.Key);
             if (File.Exists(filePath))
             {
                 if (File.ReadAllText(filePath, encoding) == kv.Value)

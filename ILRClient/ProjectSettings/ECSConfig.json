@@ -1,0 +1,9 @@
+{
+    "modifyVersion": 0,
+    "Contexts": [
+        {
+            "Name": "Logic",
+            "DirectoryPath": "Assets/Scripts/Hotfix/Logic/ECS/"
+        }
+    ]
+}

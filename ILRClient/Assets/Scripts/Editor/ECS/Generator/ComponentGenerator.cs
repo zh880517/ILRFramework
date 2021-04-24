@@ -2,29 +2,20 @@ using System;
 using System.Collections.Generic;
 using System.Reflection;
 
-public class ComponentTypeCollector
+public class ComponentGenerator
 {
     private readonly List<Type> componentTypes = new List<Type>();
-    private readonly Type baseType;
-    private readonly string contextName;
+    private ECSContextConfig context;
 
-    public ComponentTypeCollector(Type baseType, string contextName)
+    public ComponentGenerator(ECSContextConfig config)
     {
-        this.baseType = baseType;
-        this.contextName = contextName;
+        componentTypes.AddRange(config.ComponentTypes);
+        context = config;
     }
 
-    public bool AddType(Type type)
-    {
-        if (baseType.IsAssignableFrom(type))
-        {
-            componentTypes.Add(type);
-        }
-        return false;
-    }
     public void Gen(GeneratorFolder folder)
     {
-        folder.AddFile($"{contextName}Components", GenComponentsFile());
+        folder.AddFile($"{context.Name}Components", GenComponentsFile());
         //自动System生成
         foreach (var type in componentTypes)
         {
@@ -51,8 +42,8 @@ public class ComponentTypeCollector
 
     private void GenDestroySystem(Type type, CodeWriter writer, string className)
     {
-        writer.Write($"$private readonly ECS.Core.Group<{type.FullName}> group;").NewLine();
-        writer.Write($"public {className}({contextName}Context context)");
+        writer.Write($"private readonly ECS.Core.Group<{type.FullName}> group;").NewLine();
+        writer.Write($"public {className}({context.Name}Context context)");
         using(new CodeWriter.Scop(writer))
         {
             writer.Write($"group = context.CreatGroup<{type.FullName}>();");
@@ -75,8 +66,8 @@ public class ComponentTypeCollector
 
     private void GenRemoveSystem(Type type, CodeWriter writer, string className)
     {
-        writer.Write($"$private readonly {className}Context context;").NewLine();
-        writer.Write($"public {className}({contextName}Context context)");
+        writer.Write($"private readonly {className}Context context;").NewLine();
+        writer.Write($"public {className}({context.Name}Context context)");
         using (new CodeWriter.Scop(writer))
         {
             writer.Write("this.context = context;");
@@ -91,10 +82,10 @@ public class ComponentTypeCollector
     private string GenComponentsFile()
     {
         CodeWriter writer = new CodeWriter();
-        writer.Write($"public static partial class {contextName}Components");
+        writer.Write($"public static partial class {context.Name}Components");
         using(new CodeWriter.Scop(writer))
         {
-            writer.Write($"static {contextName}Components()");
+            writer.Write($"static {context.Name}Components()");
             using (new CodeWriter.Scop(writer))
             {
                 writer.Write($"OnContextCreat = DoContentInit;").NewLine();
@@ -118,7 +109,7 @@ public class ComponentTypeCollector
                     }
                 }
             }
-            writer.Write($"static void DoContentInit({contextName}Context context)");
+            writer.Write($"static void DoContentInit({context.Name}Context context)");
             using (new CodeWriter.Scop(writer))
             {
                 for (int i = 0; i < componentTypes.Count; ++i)

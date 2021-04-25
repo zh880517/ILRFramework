@@ -46,8 +46,8 @@ public static class SystemGenertor
         {
             componentName = $"I{context}Component";
         }
-        writer.Write($"using TCompoment = {componentName};").NewLine();
-        writer.Write($"public class {className} : ECS.Core.GroupExecuteSystem<{context}Entity, TCompoment>");
+        writer.Write($"using TComponent = {componentName};").NewLine();
+        writer.Write($"public class {className} : ECS.Core.GroupExecuteSystem<{context}Entity, TComponent>");
         using (new CodeWriter.Scop(writer))
         {
             writer.Write($"{context}Context context;").NewLine();
@@ -56,7 +56,7 @@ public static class SystemGenertor
             {
                 writer.Write("this.context = context;");
             }
-            writer.Write($"protected override void OnExecuteEntity({context}Entity entity, TCompoment component)");
+            writer.Write($"protected override void OnExecuteEntity({context}Entity entity, TComponent component)");
             writer.EmptyScop();
         }
     }

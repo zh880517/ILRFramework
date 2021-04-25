@@ -1,7 +1,7 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 namespace ECS.Core
 {
-    public class EventGroup<TEntity> : IEventGroup<TEntity> where TEntity : Entity
+    public class EventGroup<TEntity, TComponent> : IEventGroup<TEntity> where TEntity : Entity where TComponent : IComponent
     {
         //ILRuntime,直接使用foreach遍历会产生GC，这里不遍历Dictionary
         private readonly Dictionary<int, int> idIndexMap = new Dictionary<int, int>();
@@ -15,6 +15,11 @@ namespace ECS.Core
         {
             this.context = context;
             mask = eventMask;
+        }
+
+        public void Destroy()
+        {
+            context.RemoveEventroup<TComponent>(this);
         }
 
         private int GetIndex()

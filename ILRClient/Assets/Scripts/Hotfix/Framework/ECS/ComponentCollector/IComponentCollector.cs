@@ -9,6 +9,7 @@ namespace ECS.Core
         void RemoveAll();
         IComponent Modify(Entity entity);
         void RegistEventGroup(IEventGroup eventGroup);
+        void RemoveEventGroup(IEventGroup eventGroup);
     }
 
     public interface IComponentCollectorT<T> : IComponentCollector where T : class, IComponent, new()

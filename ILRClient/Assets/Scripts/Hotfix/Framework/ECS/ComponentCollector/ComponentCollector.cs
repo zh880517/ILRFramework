@@ -144,6 +144,11 @@ namespace ECS.Core
             eventGroups.Add(eventGroup);
         }
 
+        public void RemoveEventGroup(IEventGroup eventGroup)
+        {
+            eventGroups.Remove(eventGroup);
+        }
+
         public Entity Find(ref int startIndex, out T component, System.Func<T, bool> condition)
         {
             for (int i = startIndex; i < units.Count; ++i)

@@ -37,11 +37,18 @@ namespace ECS.Core
             return new Group<T>(collectors[ComponentIdentity<T>.Id] as IComponentCollectorT<T>);
         }
 
-        public EventGroup<TEntity> CreatEventGroup<TComponent>(ComponentEvent eventMask) where TComponent : IComponent
+        public EventGroup<TEntity, TComponent> CreatEventGroup<TComponent>(ComponentEvent eventMask) where TComponent : IComponent
         {
-            var group = new EventGroup<TEntity>(this, eventMask);
-            collectors[ComponentIdentity<TComponent>.Id].RegistEventGroup(group);
+            int id = ComponentIdentity<TComponent>.Id;
+            var group = new EventGroup<TEntity, TComponent>(this, eventMask);
+            collectors[id].RegistEventGroup(group);
             return group;
+        }
+
+        public void RemoveEventroup<TComponent>(IEventGroup eventGroup) where TComponent : IComponent
+        {
+            int id = ComponentIdentity<TComponent>.Id;
+            collectors[id].RemoveEventGroup(eventGroup);
         }
 
     }

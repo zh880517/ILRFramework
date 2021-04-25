@@ -84,6 +84,11 @@ namespace ECS.Core
             eventGroups.Add(eventGroup);
         }
 
+        public void RemoveEventGroup(IEventGroup eventGroup)
+        {
+            eventGroups.Remove(eventGroup);
+        }
+
         public void Remove(Entity entity)
         {
             if (entity == uniqueEntity)

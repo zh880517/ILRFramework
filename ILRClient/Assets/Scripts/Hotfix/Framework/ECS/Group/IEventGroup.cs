@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ECS.Core
 {
@@ -16,6 +16,7 @@ namespace ECS.Core
         void OnRemove<T>(int entityId) where T : class, IComponent;
         void Reset();
         bool IsEmpty();
+        void Destroy();
     }
 
     public interface IEventGroup<TEntity> : IEventGroup where TEntity : Entity

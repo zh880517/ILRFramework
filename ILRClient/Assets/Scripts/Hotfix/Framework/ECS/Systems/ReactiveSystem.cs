@@ -1,13 +1,13 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 
 namespace ECS.Core
 {
     /// <summary>
     /// 只有指定的Component有变化的Entity才会被更新
     /// </summary>
-    public abstract class ReactiveSystem<TEntity, TComponent> : IExecuteSystem  where TEntity : Entity where TComponent : IComponent
+    public abstract class ReactiveSystem<TEntity, TComponent> : IExecuteSystem, ITearDownSystem  where TEntity : Entity where TComponent : IComponent
     {
-        private readonly IEventGroup<TEntity> eventGroup;
+        private readonly EventGroup<TEntity, TComponent> eventGroup;
         private readonly List<TEntity> entities = new List<TEntity>();
 
         public ReactiveSystem(TContext<TEntity> context, ComponentEvent mask)
@@ -23,6 +23,11 @@ namespace ECS.Core
                 OnExecuteEntitis(entities);
                 entities.Clear();
             }
+        }
+
+        public virtual void OnTearDown()
+        {
+            eventGroup.Destroy();
         }
 
         protected abstract void OnExecuteEntitis(List<TEntity> entities);

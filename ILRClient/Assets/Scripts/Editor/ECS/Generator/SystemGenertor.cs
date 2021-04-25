@@ -1,4 +1,4 @@
-﻿public enum ECSSystemGenerateType
+public enum ECSSystemGenerateType
 {
     Initialize,
     Execute,
@@ -46,7 +46,8 @@ public static class SystemGenertor
         {
             componentName = $"I{context}Component";
         }
-        writer.Write($"public class {className} : ECS.Core.GroupExecuteSystem<{context}Entity, {componentName}>");
+        writer.Write($"using TCompoment = {componentName};").NewLine();
+        writer.Write($"public class {className} : ECS.Core.GroupExecuteSystem<{context}Entity, TCompoment>");
         using (new CodeWriter.Scop(writer))
         {
             writer.Write($"{context}Context context;").NewLine();
@@ -55,7 +56,7 @@ public static class SystemGenertor
             {
                 writer.Write("this.context = context;");
             }
-            writer.Write($"protected override void OnExecuteEntity({context}Entity entity, {componentName} component)");
+            writer.Write($"protected override void OnExecuteEntity({context}Entity entity, TCompoment component)");
             writer.EmptyScop();
         }
     }

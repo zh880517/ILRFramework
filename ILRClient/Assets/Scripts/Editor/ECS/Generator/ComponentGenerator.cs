@@ -24,6 +24,7 @@ public class ComponentGenerator
                 continue;
             CodeWriter writer = new CodeWriter();
             string className = $"{type.Name}CleanupSystem";
+            writer.Write($"using TCompoment = {type.FullName};").NewLine();
             writer.Write($"public class {className} : ECS.Core.ICleanupSystem");
             using(new CodeWriter.Scop(writer))
             {
@@ -42,11 +43,11 @@ public class ComponentGenerator
 
     private void GenDestroySystem(Type type, CodeWriter writer, string className)
     {
-        writer.Write($"private readonly ECS.Core.Group<{type.FullName}> group;").NewLine();
+        writer.Write($"private readonly ECS.Core.Group<TCompoment> group;").NewLine();
         writer.Write($"public {className}({context.Name}Context context)");
         using(new CodeWriter.Scop(writer))
         {
-            writer.Write($"group = context.CreatGroup<{type.FullName}>();");
+            writer.Write($"group = context.CreatGroup<TCompoment>();");
         }
         writer.Write($"public void OnCleanup()");
         using (new CodeWriter.Scop(writer)) 
@@ -75,7 +76,7 @@ public class ComponentGenerator
         writer.Write($"public void OnCleanup()");
         using (new CodeWriter.Scop(writer))
         {
-            writer.Write($"context.RemoveAll<{type.FullName}>();");
+            writer.Write($"context.RemoveAll<TCompoment>();");
         }
     }
 

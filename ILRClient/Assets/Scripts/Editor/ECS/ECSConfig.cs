@@ -26,8 +26,8 @@ public class ECSConfig
                 else
                 {
                     _instance = new ECSConfig { Contexts = new List<ECSContextConfig>() };
+                    SaveToFile();
                 }
-                SaveToFile();
             }
             return _instance;
         }
@@ -46,17 +46,17 @@ public class ECSConfig
             {
                 if (Contexts.Exists(it => it.Name == name))
                 {
-                    EditorUtility.DisplayDialog("´íÎó", $"ÒÑ¾­´æÔÚÖØÃûµÄContext => {name}", "ok");
+                    EditorUtility.DisplayDialog("é”™è¯¯", $"å·²ç»å­˜åœ¨é‡åçš„Context => {name}", "ok");
                     break;
                 }
                 if (Contexts.Exists(it => it.DirectoryPath == path))
                 {
-                    EditorUtility.DisplayDialog("´íÎó", $"ÒÑ¾­´æÔÚÏàÍ¬µÄÎÄ¼ş¼Ğ => {path}", "ok");
+                    EditorUtility.DisplayDialog("é”™è¯¯", $"å·²ç»å­˜åœ¨ç›¸åŒçš„æ–‡ä»¶å¤¹ => {path}", "ok");
                     break;
                 }
                 if (!char.IsUpper(name[0]))
                 {
-                    EditorUtility.DisplayDialog("´íÎó", "Ãû×ÖÊ××ÖÄ¸Ó¦¸Ã´óĞ´", "ok");
+                    EditorUtility.DisplayDialog("é”™è¯¯", "åå­—é¦–å­—æ¯åº”è¯¥å¤§å†™", "ok");
                     break;
                 }
                 bool validName = true;
@@ -64,7 +64,7 @@ public class ECSConfig
                 {
                     if (!char.IsLetter(name[i]))
                     {
-                        EditorUtility.DisplayDialog("´íÎó", $"Ãû×Öº¬ÓĞ·Ç·¨×Ö·û{name[i]}", "ok");
+                        EditorUtility.DisplayDialog("é”™è¯¯", $"åå­—å«æœ‰éæ³•å­—ç¬¦{name[i]}", "ok");
                         break;
                     }
                 }

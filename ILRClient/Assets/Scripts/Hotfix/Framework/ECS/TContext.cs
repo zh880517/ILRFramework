@@ -57,7 +57,7 @@ namespace ECS.Core
             collectors[id].RemoveEventGroup(eventGroup);
         }
 
-        public ECPair<TEntity, T> GetUniquePair<T>() where T : class, IComponent, new()
+        public ECPair<TEntity, T> GetUniquePair<T>() where T : class, IComponent, IUnique, new()
         {
             if (!ComponentIdentity<T>.Unique)
             {
@@ -68,7 +68,7 @@ namespace ECS.Core
             return collector.GetPair<TEntity>();
         }
 
-        public TComponent GetUnique<TComponent>() where TComponent : class, IComponent, new()
+        public TComponent GetUnique<TComponent>() where TComponent : class, IComponent, IUnique, new()
         {
             if (!ComponentIdentity<TComponent>.Unique)
             {

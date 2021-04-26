@@ -23,10 +23,20 @@ namespace ECS.Core
             {
                 throw new System.Exception(string.Format("ComponentId 重复或重复注册 => {0}", typeof(T).FullName));
             }
-            if (!ComponentIdentity<T>.Unique)
-                collectors[ComponentIdentity<T>.Id] = new ComponentCollector<T>();
-            else
-                collectors[ComponentIdentity<T>.Id] = new UniqueComponentCollector<T>();
+            collectors[ComponentIdentity<T>.Id] = new ComponentCollector<T>();
+        }
+
+        public void InitUniqueComponentCollector<T>() where T : class, IComponent, IUnique, new()
+        {
+            if (ComponentIdentity<T>.Id == -1)
+            {
+                throw new System.Exception(string.Format("Component类型未初始化 => {0} ", typeof(T).FullName));
+            }
+            if (collectors[ComponentIdentity<T>.Id] != null)
+            {
+                throw new System.Exception(string.Format("ComponentId 重复或重复注册 => {0}", typeof(T).FullName));
+            }
+            collectors[ComponentIdentity<T>.Id] = new UniqueComponentCollector<T>();
         }
 
         protected Entity Find(int id)

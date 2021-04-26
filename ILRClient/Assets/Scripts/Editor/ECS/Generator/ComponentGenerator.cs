@@ -99,7 +99,7 @@ public class ComponentGenerator
                 for (int i=0; i<componentTypes.Count; ++i)
                 {
                     var type = componentTypes[i];
-                    if (type.GetCustomAttribute<ECS.Core.UniqueAttribute>() != null)
+                    if (typeof(ECS.Core.IUnique).IsAssignableFrom(type))
                     {
                         writer.Write($"ECS.Core.ComponentIdentity<{type.FullName}>.Unique = true;").NewLine();
                     }
@@ -116,7 +116,15 @@ public class ComponentGenerator
                 for (int i = 0; i < componentTypes.Count; ++i)
                 {
                     var type = componentTypes[i];
-                    writer.Write($"context.InitComponentCollector<{type.FullName}>();");
+                    
+                    if (typeof(ECS.Core.IUnique).IsAssignableFrom(type))
+                    {
+                        writer.Write($"context.InitComponentCollector<{type.FullName}>();");
+                    }
+                    else
+                    {
+                        writer.Write($"context.InitUniqueComponentCollector<{type.FullName}>();");
+                    }
                     if (i < componentTypes.Count - 1)
                     {
                         writer.NewLine();

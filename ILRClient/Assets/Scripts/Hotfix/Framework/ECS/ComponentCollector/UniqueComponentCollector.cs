@@ -2,7 +2,7 @@ using System.Collections.Generic;
 
 namespace ECS.Core
 {
-    public class UniqueComponentCollector<T> : IComponentCollectorT<T> where T : class, IComponent, new()
+    public class UniqueComponentCollector<T> : IComponentCollectorT<T> where T : class, IComponent, IUnique, new()
     {
         public int Count => uniqueEntity != null ? 1 : 0;
         private readonly List<IEventGroup> eventGroups = new List<IEventGroup>();

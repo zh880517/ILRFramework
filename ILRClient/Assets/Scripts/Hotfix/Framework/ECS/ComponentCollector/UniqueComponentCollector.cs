@@ -42,6 +42,24 @@ namespace ECS.Core
             return null;
         }
 
+        public T Get()
+        {
+            if (uniqueEntity)
+            {
+                return uniqueComponent;
+            }
+            return null;
+        }
+
+        public ECPair<TEntity, T> GetPair<TEntity>() where TEntity : Entity
+        {
+            if (uniqueEntity)
+            {
+                return new ECPair<TEntity, T> { Owner = uniqueEntity as TEntity, Value = uniqueComponent };
+            }
+            return new ECPair<TEntity, T>();
+        }
+
         public Entity Find(ref int startIndex, out T component, System.Func<T, bool> condition)
         {
             if (startIndex == 0 && uniqueEntity != null && (condition == null || condition(uniqueComponent)))

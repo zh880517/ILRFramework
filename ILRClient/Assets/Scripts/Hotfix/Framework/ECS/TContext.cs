@@ -2,6 +2,12 @@ using System;
 
 namespace ECS.Core
 {
+    public struct ECPair<TEntity, TComponent>
+    {
+        public TEntity Owner;
+        public TComponent Value;
+    }
+
     public class TContext<TEntity> : Context where TEntity : Entity
     {
         protected Func<Context, int, TEntity> creatFacory;
@@ -49,6 +55,28 @@ namespace ECS.Core
         {
             int id = ComponentIdentity<TComponent>.Id;
             collectors[id].RemoveEventGroup(eventGroup);
+        }
+
+        public ECPair<TEntity, T> GetUniquePair<T>() where T : class, IComponent, new()
+        {
+            if (!ComponentIdentity<T>.Unique)
+            {
+                throw new Exception($"{ComponentIdentity<T>.Name} not a UniqueComponent");
+            }
+            int id = ComponentIdentity<T>.Id;
+            var collector = collectors[id] as UniqueComponentCollector<T>;
+            return collector.GetPair<TEntity>();
+        }
+
+        public TComponent GetUnique<TComponent>() where TComponent : class, IComponent, new()
+        {
+            if (!ComponentIdentity<TComponent>.Unique)
+            {
+                throw new Exception($"{ComponentIdentity<TComponent>.Name} not a UniqueComponent");
+            }
+            int id = ComponentIdentity<TComponent>.Id;
+            var collector = collectors[id] as UniqueComponentCollector<TComponent>;
+            return collector.Get();
         }
 
     }

@@ -484,6 +484,8 @@ public partial struct FP : IEquatable<FP>, IComparable<FP> {
             // mathematically undefined for x < 0. So we just throw an exception.
             throw new ArgumentOutOfRangeException("Negative value passed to Sqrt", "x");
         }
+        if (xl == 0)
+            return Zero;
 
         var num = (ulong)xl;
         var result = 0UL;

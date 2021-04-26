@@ -94,9 +94,22 @@ public static class SDFUtils
         return TSVector2.Distance(x, c) - radius;
     }
 
-//     public static FP SDBox(TSVector2 x, TSVector2 c, TSVector2 rot, TSVector2 b)
-//     {
-//         TSVector2 p = TSVector2.Dot(x - c, -rot);
-//     }
+    public static FP SDBox(TSVector2 x, TSVector2 c, TSVector2 b)
+    {
+        TSVector2 p = x - c;
+        p.x = TSMath.Abs(p.x);
+        p.y = TSMath.Abs(p.y);
+        TSVector2 d = p - b;
+        return TSVector2.Max(d, TSVector2.zero).sqrMagnitude + TSMath.Min(TSMath.Max(d.x, d.y), FP.Zero);
+    }
+
+    public static FP SDOrientedBox(TSVector2 x, TSVector2 c, TSVector2 rot, TSVector2 b)
+    {
+        //没明白
+        FP dot = TSMath.Abs(TSVector2.Dot(x - c, -rot));
+        TSVector2 p = new TSVector2(dot, dot);
+        TSVector2 d = p - b;
+        return TSVector2.Max(d, TSVector2.zero).sqrMagnitude + TSMath.Min(TSMath.Max(d.x, d.y), FP.Zero);
+    }
 
 }

@@ -2,7 +2,6 @@
     "name": "Hotfix.View",
     "rootNamespace": "",
     "references": [
-        "Hotfix.Framework",
         "Hotfix.Logic",
         "Thirdparty"
     ],

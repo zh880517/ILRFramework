@@ -1,8 +1,9 @@
 {
     "name": "ECS.Edtor",
+    "rootNamespace": "",
     "references": [
         "GUID:43eea3abb52b4a1418c34b1ba9e830df",
-        "GUID:464044a29c286cf439aada470dd13117"
+        "GUID:cc47be11ec6aa90479c1e2e41ad3092a"
     ],
     "includePlatforms": [
         "Editor"

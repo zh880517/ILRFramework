@@ -1,5 +1,4 @@
-using UnityEngine;
 public class LogicPosition : ILogicComponent
 {
-    public Vector2 Value;
+    public TSVector2 Value;
 }

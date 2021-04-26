@@ -2,7 +2,7 @@
     "name": "Hotfix.Logic",
     "rootNamespace": "",
     "references": [
-        "Hotfix.Framework"
+        "Thirdparty"
     ],
     "includePlatforms": [
         "Editor"

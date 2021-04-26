@@ -6,7 +6,6 @@ public class App : MonoBehaviour
     private void Awake()
     {
         Instance = this;
-
 #if UNITY_EDITOR
         Hotfix.InitByPath("BuildOutput/", "Hotfix");
 #else

@@ -13,7 +13,7 @@ public static class SystemGenertor
 {
     public static string Gen(string className, string context, ECSSystemGenerateType type, string componentName = null)
     {
-        CodeWriter writer = new CodeWriter();
+        CodeWriter writer = new CodeWriter(true);
         if (type < ECSSystemGenerateType.GroupExecute)
         {
             writer.Write($"public class {className} : ECS.Core.I{type}System");

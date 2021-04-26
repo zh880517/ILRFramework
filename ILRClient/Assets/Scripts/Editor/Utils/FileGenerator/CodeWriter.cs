@@ -4,6 +4,8 @@ public class CodeWriter
 {
     private int tabCount = 0;
 
+    private string lineBreak = "\n";
+
     public StringBuilder Stream { get; } = new StringBuilder();
 
     public struct Scop : System.IDisposable
@@ -19,6 +21,13 @@ public class CodeWriter
         {
             writer.EndScope();
         }
+    }
+
+    /// <param name="winBreakLine">换行符选择，如果生成的文件需要编辑，则选择true，vs里面新加行换行符是Windows默认换行符</param>
+    public CodeWriter(bool winBreakLine = false)
+    {
+        if (winBreakLine)
+            lineBreak = "\r\n";
     }
 
     public CodeWriter BeginScope()
@@ -43,23 +52,23 @@ public class CodeWriter
     {
         NewLine();
         Stream.Append('{');
-        EmptyLine();
+        NewLine();
         Stream.Append('}');
         NewLine();
         if (emptyLine)
-            Stream.Append('\n');
+            NewLine();
         return this;
     }
 
     public CodeWriter EmptyLine()
     {
-        Stream.Append('\n');
+        Stream.Append(lineBreak);
         return this;
     }
 
     public CodeWriter NewLine()
     {
-        Stream.Append('\n').Append(' ', tabCount*4);
+        Stream.Append(lineBreak).Append(' ', tabCount*4);
         return this;
     }
 

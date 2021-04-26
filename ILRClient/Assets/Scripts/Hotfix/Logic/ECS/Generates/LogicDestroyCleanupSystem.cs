@@ -1,10 +1,10 @@
-using TCompoment = LogicDestroy;
+using TComponent = LogicDestroy;
 public class LogicDestroyCleanupSystem : ECS.Core.ICleanupSystem
 {
-    private readonly ECS.Core.Group<TCompoment> group;
+    private readonly ECS.Core.Group<TComponent> group;
     public LogicDestroyCleanupSystem(LogicContext context)
     {
-        group = context.CreatGroup<TCompoment>();
+        group = context.CreatGroup<TComponent>();
     }
     public void OnCleanup()
     {

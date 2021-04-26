@@ -3,7 +3,7 @@ public static class ContextGenertor
     
     public static string Gen(string name)
     {
-        CodeWriter writer = new CodeWriter();
+        CodeWriter writer = new CodeWriter(true);
         writer.Write($"public interface I{name}Component : ECS.Core.IComponent");
         writer.EmptyScop();
 
@@ -11,7 +11,7 @@ public static class ContextGenertor
         using(new CodeWriter.Scop(writer))
         {
             writer.Write($"public {name}Entity(ECS.Core.Context context, int id) : base(context, id)");
-            writer.EmptyScop();
+            writer.EmptyScop(false);
         }
 
         writer.Write($"public static partial class {name}Components");
@@ -25,7 +25,7 @@ public static class ContextGenertor
         using (new CodeWriter.Scop(writer))
         {
             //Ctor
-            writer.Write($" public {name}Context(int componentTypeCount) : base(componentTypeCount, CreatFunc)");
+            writer.Write($"protected {name}Context(int componentTypeCount) : base(componentTypeCount, CreatFunc)");
             writer.EmptyScop();
 
             //CreatFunc

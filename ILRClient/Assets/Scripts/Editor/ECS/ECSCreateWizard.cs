@@ -1,4 +1,4 @@
-﻿using System.Collections.Generic;
+using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEditor;
@@ -239,7 +239,7 @@ public class ECSCreateWizard : ScriptableWizard
         string content = null;
         if (createType == CreateType.Component)
         {
-            CodeWriter writer = new CodeWriter();
+            CodeWriter writer = new CodeWriter(true);
             writer.Write($"public partial {className} : ECS.Core.I{cfg.Name}Component");
             writer.EmptyScop();
             content = writer.ToString();

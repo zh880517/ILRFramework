@@ -94,6 +94,7 @@ public static class SDFUtils
         return TSVector2.Distance(x, c) - radius;
     }
 
+    //不旋转的box
     public static FP SDBox(TSVector2 x, TSVector2 c, TSVector2 b)
     {
         TSVector2 p = x - c;
@@ -103,11 +104,13 @@ public static class SDFUtils
         return TSVector2.Max(d, TSVector2.zero).sqrMagnitude + TSMath.Min(TSMath.Max(d.x, d.y), FP.Zero);
     }
 
+    //旋转的box
     public static FP SDOrientedBox(TSVector2 x, TSVector2 c, TSVector2 rot, TSVector2 b)
     {
-        //没明白
-        FP dot = TSMath.Abs(TSVector2.Dot(x - c, -rot));
-        TSVector2 p = new TSVector2(dot, dot);
+        TSVector2 v = x - c;
+        FP px = TSMath.Abs(TSVector2.Dot(v, rot));//在box的x轴的投影长度
+        FP py = TSMath.Abs(TSVector2.Dot(v, new TSVector2(-rot.y, rot.x)));//在box的y轴的投影长度
+        TSVector2 p = new TSVector2(px, py);
         TSVector2 d = p - b;
         return TSVector2.Max(d, TSVector2.zero).sqrMagnitude + TSMath.Min(TSMath.Max(d.x, d.y), FP.Zero);
     }

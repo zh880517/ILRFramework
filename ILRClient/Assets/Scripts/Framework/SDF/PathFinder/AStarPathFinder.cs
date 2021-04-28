@@ -1,10 +1,10 @@
-public class AStarPathFinder : PathFinder
+public class AStarPathFinder : PathFinderAlgorithm
 {
     protected override bool Search(PathNode node)
     {
         while (node != null)
         {
-            MapPath.CloseList.Add(node);
+            mapPath.CloseList.Add(node);
             node.status = NodeStatus.Close;
 
             if (node == endNode)
@@ -17,26 +17,26 @@ public class AStarPathFinder : PathFinder
             SearchOpenNode(node.neighbor.bottomRight, node, DirectionType.BottomRight);
             SearchOpenNode(node.neighbor.topLeft, node, DirectionType.TopLeft);
             SearchOpenNode(node.neighbor.bottomLeft, node, DirectionType.BottomLeft);
-            node = MapPath.TryGetOpenNode();
+            node = mapPath.TryGetOpenNode();
         }
         return false;
     }
 
     void SearchOpenNode(PathNode toCheck, PathNode fromNode, DirectionType dir = DirectionType.None)
     {
-        if (toCheck == null || !toCheck.Walkable() || toCheck.status == NodeStatus.Close)
+        if (!mapPath.CheckWalkable(toCheck) || toCheck.status == NodeStatus.Close)
             return;
-        if (dir == DirectionType.TopRight && (!fromNode.neighbor.top.Walkable() || !fromNode.neighbor.right.Walkable()))
+        if (dir == DirectionType.TopRight && (!mapPath.CheckWalkable(fromNode.neighbor.top) || !mapPath.CheckWalkable(fromNode.neighbor.right)))
             return;
-        if (dir == DirectionType.TopLeft && (!fromNode.neighbor.top.Walkable() || !fromNode.neighbor.left.Walkable()))
+        if (dir == DirectionType.TopLeft && (!mapPath.CheckWalkable(fromNode.neighbor.top) || !mapPath.CheckWalkable(fromNode.neighbor.left)))
             return;
-        if (dir == DirectionType.BottomRight && (!fromNode.neighbor.bottom.Walkable() || !fromNode.neighbor.right.Walkable()))
+        if (dir == DirectionType.BottomRight && (!mapPath.CheckWalkable(fromNode.neighbor.bottom) || !mapPath.CheckWalkable(fromNode.neighbor.right)))
             return;
-        if (dir == DirectionType.BottomLeft && (!fromNode.neighbor.bottom.Walkable() || !fromNode.neighbor.left.Walkable()))
+        if (dir == DirectionType.BottomLeft && (!mapPath.CheckWalkable(fromNode.neighbor.bottom) || !mapPath.CheckWalkable(fromNode.neighbor.left)))
             return;
         if (toCheck.status == NodeStatus.Open)
         {
-            var cost = PathNode.ComputeGForAStar(dir);
+            var cost = ComputeG(dir);
             var gTemp = fromNode.g + cost;
             if (gTemp < toCheck.g)
             {
@@ -45,15 +45,30 @@ public class AStarPathFinder : PathFinder
                 toCheck.f = gTemp + toCheck.h;
             }
 
-            MapPath.OpenHeap.TryUpAdjust(toCheck);
+            mapPath.OpenHeap.TryUpAdjust(toCheck);
             return;
         }
         toCheck.parent = fromNode;
-        toCheck.g = fromNode.g + PathNode.ComputeGForAStar(dir);
+        toCheck.g = fromNode.g + ComputeG(dir);
         toCheck.h = PathNode.ComputeH(toCheck, endNode);
         toCheck.f = toCheck.g + toCheck.h;
         toCheck.status = NodeStatus.Open;
-        MapPath.OpenHeap.Enqueue(toCheck);
+        mapPath.OpenHeap.Enqueue(toCheck);
 
     }
+
+    public static int ComputeG(DirectionType direction)
+    {
+        switch (direction)
+        {
+            case DirectionType.Bottom:
+            case DirectionType.Top:
+            case DirectionType.Left:
+            case DirectionType.Right:
+                return PathNode.Line;
+            default:
+                return PathNode.Tilted;
+        }
+    }
+
 }

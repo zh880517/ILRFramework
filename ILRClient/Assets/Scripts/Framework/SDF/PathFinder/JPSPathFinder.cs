@@ -1,4 +1,4 @@
-public class JPSPathFinder : PathFinder
+public class JPSPathFinder : PathFinderAlgorithm
 {
     enum JumpType 
     { 
@@ -12,7 +12,7 @@ public class JPSPathFinder : PathFinder
         while (node != null)
         {
             node.status = NodeStatus.Close;
-            MapPath.CloseList.Add(node);
+            mapPath.CloseList.Add(node);
 
             if (node == endNode)
                 return true;
@@ -32,7 +32,7 @@ public class JPSPathFinder : PathFinder
                 SearchBottomRight(node);
             if ((node.dir & DirectionType.BottomLeft) != DirectionType.None)
                 SearchBottomLeft(node);
-            node = MapPath.TryGetOpenNode();
+            node = mapPath.TryGetOpenNode();
         }
         return false;
     }
@@ -40,62 +40,62 @@ public class JPSPathFinder : PathFinder
     private void SearchTop(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.top, fromNode, DirectionType.Top, JumpType.Line);
     }
 
     private void SearchRight(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.right, fromNode, DirectionType.Right, JumpType.Line);
     }
 
     private void SearchLeft(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.left, fromNode, DirectionType.Left, JumpType.Line);
     }
 
     private void SearchBottom(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.bottom, fromNode, DirectionType.Bottom, JumpType.Line);
     }
 
     private void SearchTopRight(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.topRight, fromNode, DirectionType.TopRight, JumpType.Tilted);
     }
 
     private void SearchTopLeft(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.topLeft, fromNode, DirectionType.TopLeft, JumpType.Tilted);
     }
 
     private void SearchBottomRight(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.bottomRight, fromNode, DirectionType.BottomRight, JumpType.Tilted);
     }
 
     private void SearchBottomLeft(PathNode fromNode)
     {
         var node = fromNode;
-        while (node != null && node.Walkable())
+        while (mapPath.CheckWalkable(node))
             node = GetNext(node.neighbor.bottomLeft, fromNode, DirectionType.BottomLeft, JumpType.Tilted);
     }
 
     private PathNode GetNext(PathNode toCheck, PathNode fromNode, DirectionType dir, JumpType jumpType)
     {
-        if (toCheck == null || toCheck.Walkable() == false || toCheck.status == NodeStatus.Close)
+        if (!mapPath.CheckWalkable(toCheck)|| toCheck.status == NodeStatus.Close)
         {
             return null;
         }
@@ -106,7 +106,7 @@ public class JPSPathFinder : PathFinder
         {
             if (toCheck.status == NodeStatus.Open) // 已经在openlist里了 判断是否更新G值 更新parent
             {
-                var cost = PathNode.ComputeGForJPS(dir, fromNode, toCheck);
+                var cost = ComputeG(dir, fromNode, toCheck);
                 var gTemp = fromNode.g + cost;
                 if (gTemp < toCheck.g)
                 {
@@ -117,17 +117,17 @@ public class JPSPathFinder : PathFinder
                     toCheck.f = gTemp + toCheck.h;
                 }
 
-                MapPath.OpenHeap.TryUpAdjust(toCheck);
+                mapPath.OpenHeap.TryUpAdjust(toCheck);
                 return null;
             }
             //加入openlist
             toCheck.parent = fromNode;
-            toCheck.g = fromNode.g + PathNode.ComputeGForJPS(dir, toCheck, fromNode);
+            toCheck.g = fromNode.g + ComputeG(dir, toCheck, fromNode);
             toCheck.h = PathNode.ComputeH(toCheck, endNode);
             toCheck.f = toCheck.g + toCheck.h;
             toCheck.status = NodeStatus.Open;
             toCheck.dir = jumpNodeDir;
-            MapPath.OpenHeap.Enqueue(toCheck);
+            mapPath.OpenHeap.Enqueue(toCheck);
             return null;
         }
         return toCheck;
@@ -136,7 +136,7 @@ public class JPSPathFinder : PathFinder
     private bool IsLineJumpNode(PathNode toCheck, DirectionType dir, out DirectionType jumpNodeDir)
     {
         jumpNodeDir = dir;
-        if (toCheck == null || toCheck.Walkable() == false)
+        if (!mapPath.CheckWalkable(toCheck))
             return false;
         if (dir == DirectionType.Right)
             return IsRightJumpNode(toCheck, ref jumpNodeDir);
@@ -154,18 +154,18 @@ public class JPSPathFinder : PathFinder
         if (toCheck == endNode)
             return true;
         var result = false;
-        if (toCheck.neighbor.right != null && toCheck.neighbor.right.Walkable())
+        if (mapPath.CheckWalkable(toCheck.neighbor.right))
         {
             var up = toCheck.neighbor.top;
             var down = toCheck.neighbor.bottom;
             var topRight = toCheck.neighbor.topRight;
             var bottomRight = toCheck.neighbor.bottomRight;
-            if (up != null && !up.Walkable() && topRight != null && topRight.Walkable())
+            if (!mapPath.CheckWalkable(up) && mapPath.CheckWalkable(topRight))
             {
                 jumpNodeDir |= DirectionType.TopRight;
                 result = true;
             }
-            if (down != null && !down.Walkable() && bottomRight != null && bottomRight.Walkable())
+            if (!mapPath.CheckWalkable(down) && mapPath.CheckWalkable(bottomRight))
             {
                 jumpNodeDir |= DirectionType.BottomRight;
                 result = true;
@@ -179,18 +179,18 @@ public class JPSPathFinder : PathFinder
         if (toCheck == endNode)
             return true;
         var result = false;
-        if (toCheck.neighbor.left != null && toCheck.neighbor.left.Walkable())
+        if (mapPath.CheckWalkable(toCheck.neighbor.left))
         {
             var top = toCheck.neighbor.top;
             var bottom = toCheck.neighbor.bottom;
             var topLeft = toCheck.neighbor.topLeft;
             var bottomLeft = toCheck.neighbor.bottomLeft;
-            if (top != null && !top.Walkable() && topLeft != null && topLeft.Walkable())
+            if (!mapPath.CheckWalkable(top) && mapPath.CheckWalkable(topLeft))
             {
                 jumpNodeDir |= DirectionType.TopLeft;
                 result = true;
             }
-            if (bottom != null && !bottom.Walkable() && bottomLeft != null && bottomLeft.Walkable())
+            if (!mapPath.CheckWalkable(bottom) && mapPath.CheckWalkable(bottomLeft))
             {
                 jumpNodeDir |= DirectionType.BottomLeft;
                 result = true;
@@ -204,18 +204,18 @@ public class JPSPathFinder : PathFinder
         if (toCheck == endNode)
             return true;
         var result = false;
-        if (toCheck.neighbor.top != null && toCheck.neighbor.top.Walkable())
+        if (mapPath.CheckWalkable(toCheck.neighbor.top))
         {
             var left = toCheck.neighbor.left;
             var right = toCheck.neighbor.right;
             var topLeft = toCheck.neighbor.topLeft;
             var topRight = toCheck.neighbor.topRight;
-            if (left != null && !left.Walkable() && topLeft != null && topLeft.Walkable())
+            if (!mapPath.CheckWalkable(left) && mapPath.CheckWalkable(topLeft))
             {
                 jumpNodeDir |= DirectionType.TopLeft;
                 result = true;
             }
-            if (right != null && !right.Walkable() && topRight != null && topRight.Walkable())
+            if (!mapPath.CheckWalkable(right) && mapPath.CheckWalkable(topRight))
             {
                 jumpNodeDir |= DirectionType.TopRight;
                 result = true;
@@ -229,18 +229,18 @@ public class JPSPathFinder : PathFinder
         if (toCheck == endNode)
             return true;
         var result = false;
-        if (toCheck.neighbor.bottom != null && toCheck.neighbor.bottom.Walkable())
+        if (mapPath.CheckWalkable(toCheck.neighbor.bottom))
         {
             var left = toCheck.neighbor.left;
             var right = toCheck.neighbor.right;
             var bottomLeft = toCheck.neighbor.bottomLeft;
             var bottomRight = toCheck.neighbor.bottomRight;
-            if (left != null && !left.Walkable() && bottomLeft != null && bottomLeft.Walkable())
+            if (!mapPath.CheckWalkable(left) && mapPath.CheckWalkable(bottomLeft))
             {
                 jumpNodeDir |= DirectionType.BottomLeft;
                 result = true;
             }
-            if (right != null && !right.Walkable() && bottomRight != null && bottomRight.Walkable())
+            if (!mapPath.CheckWalkable(right) && mapPath.CheckWalkable(bottomRight))
             {
                 jumpNodeDir |= DirectionType.BottomRight;
                 result = true;
@@ -252,7 +252,7 @@ public class JPSPathFinder : PathFinder
     private bool IsTitleJumpNode(PathNode toCheck, DirectionType dir, out DirectionType jumpNodeDir)  //是否是斜方向的跳点
     {
         jumpNodeDir = dir;
-        if (toCheck == endNode || toCheck == null || toCheck.Walkable() == false)
+        if (toCheck == endNode || !mapPath.CheckWalkable(toCheck))
             return true;
         if (dir == DirectionType.TopRight)
             return IsTopRightJumpNode(toCheck, ref jumpNodeDir);
@@ -274,7 +274,7 @@ public class JPSPathFinder : PathFinder
         {
             var temp = DirectionType.None;
             var node = toCheck.neighbor.top;
-            while (node != null && node.Walkable())
+            while (mapPath.CheckWalkable(node))
             {
                 if (IsTopJumpNode(node, ref temp))
                 {
@@ -284,7 +284,7 @@ public class JPSPathFinder : PathFinder
                 node = node.neighbor.top;
             }
             node = toCheck.neighbor.right;
-            while (node != null && node.Walkable())
+            while (mapPath.CheckWalkable(node))
             {
                 if (IsRightJumpNode(node, ref temp))
                 {
@@ -311,7 +311,7 @@ public class JPSPathFinder : PathFinder
         {
             var temp = DirectionType.None;
             var node = toCheck.neighbor.top;
-            while (node != null && node.Walkable())
+            while (mapPath.CheckWalkable(node))
             {
                 if (IsTopJumpNode(node, ref temp))
                 {
@@ -321,7 +321,7 @@ public class JPSPathFinder : PathFinder
                 node = node.neighbor.top;
             }
             node = toCheck.neighbor.left;
-            while (node != null && node.Walkable())
+            while (mapPath.CheckWalkable(node))
             {
                 if (IsLeftJumpNode(node, ref temp))
                 {
@@ -415,7 +415,7 @@ public class JPSPathFinder : PathFinder
 
     private DirectionType GetDirection(PathNode ori, PathNode dest)
     {
-        int xDelta = dest.x - ori.x, yDelta = dest.y - ori.y;
+        int xDelta = dest.pos.x - ori.pos.x, yDelta = dest.pos.y - ori.pos.y;
         if (xDelta > 0 && yDelta > 0)
             return DirectionType.TopRight;
         if (xDelta > 0 && yDelta == 0)
@@ -435,4 +435,22 @@ public class JPSPathFinder : PathFinder
         return DirectionType.None;
     }
 
+    public static int ComputeG(DirectionType direction, PathNode ori, PathNode dest)
+    {
+        int xDelta, yDelta;
+        switch (direction)
+        {
+            case DirectionType.Bottom:
+            case DirectionType.Top:
+                yDelta = dest.pos.y > ori.pos.y ? dest.pos.y - ori.pos.y : ori.pos.y - dest.pos.y;
+                return yDelta * PathNode.Line;
+            case DirectionType.Left:
+            case DirectionType.Right:
+                xDelta = dest.pos.x > ori.pos.x ? dest.pos.x - ori.pos.x : ori.pos.x - dest.pos.x;
+                return xDelta * PathNode.Line;
+            default:
+                xDelta = dest.pos.x > ori.pos.x ? dest.pos.x - ori.pos.x : ori.pos.x - dest.pos.x;
+                return xDelta * PathNode.Tilted;
+        }
+    }
 }

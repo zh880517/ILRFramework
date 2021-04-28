@@ -21,15 +21,13 @@ public enum DirectionType
 
 public class PathNode: IComparable<PathNode>
 {
-    const int Line = 10;
-    const int Tilted = 14;
+    public const int Line = 10;
+    public const int Tilted = 14;
 
     public int g; // 起点到节点代价
     public int h; // 节点到终点代价 估值
     public int f;
-
-    public short x;
-    public short y;
+    public GridPoint pos;
     public Neighbor neighbor;
     public NodeStatus status;
     public PathNode parent;
@@ -45,54 +43,14 @@ public class PathNode: IComparable<PathNode>
         dir = DirectionType.None;
     }
 
-    //待修改接口，需要传递sdf和碰撞半径
-    public bool Walkable()
-    {
-        return true;
-    }
-
     public int CompareTo(PathNode refrence)
     {
         return f.CompareTo(refrence.f);
     }
     public static int ComputeH(PathNode ori, PathNode dest)
     {
-        int xDelta = dest.x > ori.x ? dest.x - ori.x : ori.x - dest.x;
-        int yDelta = dest.y > ori.y ? dest.y - ori.y : ori.y - dest.y;
+        int xDelta = dest.pos.x > ori.pos.x ? dest.pos.x - ori.pos.x : ori.pos.x - dest.pos.x;
+        int yDelta = dest.pos.y > ori.pos.y ? dest.pos.y - ori.pos.y : ori.pos.y - dest.pos.y;
         return (xDelta + yDelta) * 10;
     }
-
-    public static int ComputeGForAStar(DirectionType direction)
-    {
-        switch (direction)
-        {
-            case DirectionType.Bottom:
-            case DirectionType.Top:
-            case DirectionType.Left:
-            case DirectionType.Right:
-                return Line;
-            default:
-                return Tilted;
-        }
-    }
-
-    public static int ComputeGForJPS(DirectionType direction, PathNode ori, PathNode dest)
-    {
-        int xDelta, yDelta;
-        switch (direction)
-        {
-            case DirectionType.Bottom:
-            case DirectionType.Top:
-                yDelta = dest.y > ori.y ? dest.y - ori.y : ori.y - dest.y;
-                return yDelta * Line;
-            case DirectionType.Left:
-            case DirectionType.Right:
-                xDelta = dest.x > ori.x ? dest.x - ori.x : ori.x - dest.x;
-                return xDelta * Line;
-            default:
-                xDelta = dest.x > ori.x ? dest.x - ori.x : ori.x - dest.x;
-                return xDelta * Tilted;
-        }
-    }
-
 }

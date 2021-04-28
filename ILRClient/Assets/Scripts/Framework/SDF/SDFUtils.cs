@@ -6,7 +6,7 @@ public static class SDFUtils
     /// <param name="sdf">sdf数据</param>
     /// <param name="pos">相对于sdf原点的位置</param>
     /// <returns>采样后对应位置的SD值</returns>
-    public static FP Sample(this SDFData sdf, TSVector2 pos)
+    public static FP Sample(this SDFRawData sdf, TSVector2 pos)
     {
         pos /= sdf.Grain;
         int x = (int)FP.Floor(pos.x);
@@ -14,24 +14,23 @@ public static class SDFUtils
         int idx = x + y * sdf.Width;
         FP rx = pos.x - x;
         FP ry = pos.y - y;
-        var data = sdf.Data;
         //2 3
         //0 1
-        FP v0 = data[idx];
-        FP v1 = data[idx + 1];
-        FP v2 = data[idx + sdf.Width];
-        FP v3 = data[idx + sdf.Width + 1];
+        FP v0 = sdf[idx];
+        FP v1 = sdf[idx + 1];
+        FP v2 = sdf[idx + sdf.Width];
+        FP v3 = sdf[idx + sdf.Width + 1];
 
         return (v0 * (1 - rx) + v1 * rx) * (1 - ry) + (v2 * (1 - rx) + v3 * rx) * ry;
     }
 
-    public static FP Sample(this SDFData sdf, FP posX, FP posY)
+    public static FP Sample(this SDFRawData sdf, FP posX, FP posY)
     {
         return Sample(sdf, new TSVector2(posX, posY));
     }
 
     //求位置的梯度方向
-    public static TSVector2 Gradient(this SDFData sdf, TSVector2 pos)
+    public static TSVector2 Gradient(this SDFRawData sdf, TSVector2 pos)
     {
         FP delat = FP.ONE;
         FP x = Sample(sdf, pos.x + delat, pos.y) - Sample(sdf, pos.x - delat, pos.y);
@@ -48,7 +47,7 @@ public static class SDFUtils
     /// <param name="speed">速度</param>
     /// <param name="radius">碰撞半径</param>
     /// <returns></returns>
-    public static TSVector2 GetVaildPositionBySDF(this SDFData sdf, TSVector2 pos, TSVector2 dir, FP speed, FP radius)
+    public static TSVector2 GetVaildPositionBySDF(this SDFRawData sdf, TSVector2 pos, TSVector2 dir, FP speed, FP radius)
     {
         TSVector2 newPos = pos + dir * speed;
         FP sd = Sample(sdf, newPos);
@@ -74,7 +73,7 @@ public static class SDFUtils
     }
 
     //圆盘投射，获取最远可移动的位置
-    public static TSVector2 DiskCast(this SDFData sdf, TSVector2 origin, TSVector2 dir, FP radius, FP maxDistance)
+    public static TSVector2 DiskCast(this SDFRawData sdf, TSVector2 origin, TSVector2 dir, FP radius, FP maxDistance)
     {
         FP t = FP.Zero;
         while (true)

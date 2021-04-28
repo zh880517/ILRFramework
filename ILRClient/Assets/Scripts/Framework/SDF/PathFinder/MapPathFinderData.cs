@@ -1,12 +1,35 @@
 using System.Collections.Generic;
 
-public class MapPathData
+public class MapPathFinderData
 {
+    public Dictionary<int, PathNode> Nodes { get; private set; } = new Dictionary<int, PathNode>();
+    private PathFinderAlgorithm pathFinder;
+
+    //当前寻路数据
     public FTBinaryHeap<PathNode> OpenHeap { get; private set; } = new FTBinaryHeap<PathNode>();
     public List<PathNode> CloseList { get; private set; } = new List<PathNode>();
     public List<PathNode> Path { get; private set; } = new List<PathNode>();
+    public FP Radius { get; private set; }
 
-    public Dictionary<int, PathNode> Nodes { get; private set; } = new Dictionary<int, PathNode>();
+    /*
+    public bool Find(TSVector2 start, TSVector2 end)
+    {
+
+    }
+    */
+
+    //todo: 根据sdf和半径判断是否可以行走
+    public bool CheckWalkable(PathNode node)
+    {
+        if (node == null)
+            return false;
+        return true;
+    }
+
+    public void InitBySDF(SDFRawData sdf)
+    {
+
+    }
 
     public PathNode TryGetOpenNode()
     {

@@ -1,4 +1,6 @@
 using System.IO;
+using UnityEngine;
+
 public class SDFRawData
 {
     public int Width { get; private set; }
@@ -24,7 +26,7 @@ public class SDFRawData
         }
     }
 
-    public FP Get(GridPoint pt)
+    public FP Get(Vector2Int pt)
     {
         return this[pt.x + pt.y * Width];
     }

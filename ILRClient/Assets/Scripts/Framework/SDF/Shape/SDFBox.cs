@@ -3,7 +3,7 @@ public class SDFBox : SDFShape
 
     public TSVector2 Rotation { get; private set; }
 
-    public SDFBox(TSVector2 center, TSVector2 rotation, GridRect bound) : base(center, bound)
+    public SDFBox(TSVector2 center, TSVector2 rotation, RectInt bound) : base(center, bound)
     {
         Rotation = rotation;
     }

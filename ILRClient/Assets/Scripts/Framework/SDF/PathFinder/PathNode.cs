@@ -1,4 +1,6 @@
 using System;
+using UnityEngine;
+
 public enum NodeStatus
 {
     Untest,
@@ -27,7 +29,7 @@ public class PathNode: IComparable<PathNode>
     public int g; // 起点到节点代价
     public int h; // 节点到终点代价 估值
     public int f;
-    public GridPoint pos;
+    public Vector2Int pos;
     public Neighbor neighbor;
     public NodeStatus status;
     public PathNode parent;

@@ -29,6 +29,11 @@ public static class SDFUtils
         return Sample(sdf, new TSVector2(posX, posY));
     }
 
+    public static TSVector2 WorldToLocal(this SDFRawData sdf, TSVector2 pos)
+    {
+        return pos - sdf.Origin;
+    }
+
     //求位置的梯度方向
     public static TSVector2 Gradient(this SDFRawData sdf, TSVector2 pos)
     {

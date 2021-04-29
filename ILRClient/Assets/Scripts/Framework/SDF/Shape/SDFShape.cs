@@ -1,10 +1,10 @@
 public abstract class SDFShape
 {
-    public GridRect Bound { get; private set; }
+    public RectInt Bound { get; private set; }
     public TSVector2 Center { get; private set; }//相对于SDF地图原点的位置
     public int LayerMask { get; private set; }
 
-    public SDFShape(TSVector2 center, GridRect bound)
+    public SDFShape(TSVector2 center, RectInt bound)
     {
         Bound = bound;
         Center = center;

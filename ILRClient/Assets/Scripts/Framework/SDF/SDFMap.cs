@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class SDFMap
 {
@@ -10,15 +11,36 @@ public class SDFMap
         SDF = sdf;
     }
 
-    public GridPoint PosToGridPoint(TSVector2 pos)
+    public void FilterToList(List<SDFShape> shapes, RectInt rect, int layerMask = -1)
+    {
+        shapes.Clear();
+        foreach (var shape in DynamicObstacles)
+        {
+            if ((shape.LayerMask & layerMask) == 0)
+                continue;
+            if (!shape.Bound.Overlaps(rect))
+                continue;
+            shapes.Add(shape);
+        }
+    }
+
+    public Vector2Int FloorGridPoint(TSVector2 pos)
     {
         pos /= SDF.Grain;
         ushort x = (ushort)FP.Floor(pos.x);
         ushort y = (ushort)FP.Floor(pos.y);
-        return new GridPoint(x, y);
+        return new Vector2Int(x, y);
     }
 
-    public FP Get(GridPoint pt, int layerMask = -1)
+    public Vector2Int CeilingGridPoint(TSVector2 pos)
+    {
+        pos /= SDF.Grain;
+        ushort x = (ushort)FP.Ceiling(pos.x);
+        ushort y = (ushort)FP.Ceiling(pos.y);
+        return new Vector2Int(x, y);
+    }
+
+    public FP Get(Vector2Int pt, int layerMask = -1)
     {
         FP val = SDF.Get(pt);
         if (layerMask == 1)

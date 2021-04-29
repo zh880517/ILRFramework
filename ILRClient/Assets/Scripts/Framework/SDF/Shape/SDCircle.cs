@@ -2,7 +2,7 @@ public class SDCircle : SDFShape
 {
     public FP Radius { get; private set; }
 
-    public SDCircle(TSVector2 center, FP radius, GridRect bound) : base(center, bound)
+    public SDCircle(TSVector2 center, FP radius, RectInt bound) : base(center, bound)
     {
         Radius = radius;
     }

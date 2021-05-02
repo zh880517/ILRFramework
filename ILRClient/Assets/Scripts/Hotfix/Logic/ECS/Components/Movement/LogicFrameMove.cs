@@ -1,4 +1,4 @@
-public class LogicFrameMove : ILogicComponent
+public partial class LogicFrameMove : ILogicComponent
 {
     
 }

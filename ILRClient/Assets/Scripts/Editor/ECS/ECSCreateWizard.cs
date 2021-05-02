@@ -240,7 +240,7 @@ public class ECSCreateWizard : ScriptableWizard
         if (createType == CreateType.Component)
         {
             CodeWriter writer = new CodeWriter(true);
-            writer.Write($"public partial {className} : ECS.Core.I{cfg.Name}Component");
+            writer.Write($"public partial class {className} : I{cfg.Name}Component");
             writer.EmptyScop();
             content = writer.ToString();
         }

@@ -5,13 +5,16 @@ public abstract class PathFinderAlgorithm
 
     protected MapPathFinderData mapPath;
 
+    public PathFinderAlgorithm(MapPathFinderData mapPath)
+    {
+        this.mapPath = mapPath;
+    }
 
-    public bool FindPath(PathNode start, PathNode end, MapPathFinderData mapPath)
+    public bool FindPath(PathNode start, PathNode end)
     {
         mapPath.Clear();
         startNode = start;
         endNode = end;
-        this.mapPath = mapPath;
         if (Search(startNode))
         {
             var node = endNode;

@@ -4,6 +4,12 @@ public struct RectInt
     public Vector2Int min;
     public Vector2Int max;
 
+    public RectInt(Vector2Int min, Vector2Int max)
+    {
+        this.min = min;
+        this.max = max;
+    }
+
     public bool Contains(Vector2Int point)
     {
         return point.x >= min.x && point.x < max.x && point.y >= min.y && point.y < max.y;

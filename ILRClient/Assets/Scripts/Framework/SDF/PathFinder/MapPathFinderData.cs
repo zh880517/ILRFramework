@@ -1,4 +1,5 @@
 using System.Collections.Generic;
+using UnityEngine;
 
 public class MapPathFinderData
 {
@@ -10,26 +11,92 @@ public class MapPathFinderData
     public List<PathNode> CloseList { get; private set; } = new List<PathNode>();
     public List<PathNode> Path { get; private set; } = new List<PathNode>();
     public FP Radius { get; private set; }
+    private SDFMap map;
 
-    /*
-    public bool Find(TSVector2 start, TSVector2 end)
+    
+    public bool Find(TSVector2 start, TSVector2 end, List<TSVector2> path)
     {
-
+        var startNode = GetNode(start);
+        var endNode = GetNode(end);
+        if (startNode == null || endNode == null)
+            return false;
+        if (!pathFinder.FindPath(startNode, endNode))
+            return false;
+        if (path != null)
+        {
+            for (int i=Path.Count-1; i>=0; --i)
+            {
+                path.Add(map.GridPointToWorldPos(Path[i].pos));
+            }
+        }
+        return true;
     }
-    */
+    
+    public PathNode GetNode(TSVector2 worldPos)
+    {
+        var pos = map.WorldPosFloorGridPoint(worldPos);
+        Nodes.TryGetValue(pos.x << 16 | pos.y, out var node);
+        return node;
+    }
 
-    //todo: 根据sdf和半径判断是否可以行走
+
+    public void Init(SDFMap map)
+    {
+        this.map = map;
+        Nodes.Clear();
+        for (int i=0; i<map.SDF.Width; ++i)
+        {
+            for (int j=0; j<map.SDF.Heigh; ++j)
+            {
+                if (map.SDF[i, j] >= 0)
+                {
+                    PathNode node = new PathNode
+                    {
+                        pos = new Vector2Int(i, j)
+                    };
+                    int key = i << 16 | j;
+                    Nodes.Add(key, node);
+                }
+            }
+        }
+        foreach (var kv in Nodes)
+        {
+            var node = kv.Value;
+            Vector2Int pos = node.pos;
+            int key = pos.x << 16 | (pos.y + 1);
+            Nodes.TryGetValue(key, out node.neighbor.top);
+
+            key = pos.x << 16 | (pos.y - 1);
+            Nodes.TryGetValue(key, out node.neighbor.bottom);
+
+            key = (pos.x - 1) << 16 | pos.y;
+            Nodes.TryGetValue(key, out node.neighbor.left);
+
+            key = (pos.x + 1) << 16 | pos.y;
+            Nodes.TryGetValue(key, out node.neighbor.right);
+
+            key = (pos.x - 1) << 16 | (pos.y + 1);
+            Nodes.TryGetValue(key, out node.neighbor.topLeft);
+
+            key = (pos.x + 1) << 16 | (pos.y + 1);
+            Nodes.TryGetValue(key, out node.neighbor.topRight);
+
+            key = (pos.x - 1) << 16 | (pos.y - 1);
+            Nodes.TryGetValue(key, out node.neighbor.bottomLeft);
+
+            key = (pos.x + 1) << 16 | (pos.y - 1);
+            Nodes.TryGetValue(key, out node.neighbor.bottomRight);
+        }
+    }
+
     public bool CheckWalkable(PathNode node)
     {
         if (node == null)
             return false;
-        return true;
+        FP sd = map.Get(node.pos);
+        return sd >= Radius;
     }
 
-    public void InitBySDF(SDFRawData sdf)
-    {
-
-    }
 
     public PathNode TryGetOpenNode()
     {

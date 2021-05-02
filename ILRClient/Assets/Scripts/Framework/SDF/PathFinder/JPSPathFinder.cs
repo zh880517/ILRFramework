@@ -1,10 +1,15 @@
 public class JPSPathFinder : PathFinderAlgorithm
 {
-    enum JumpType 
-    { 
-        Line, 
-        Tilted 
+    enum JumpType
+    {
+        Line,
+        Tilted
     }
+
+    public JPSPathFinder(MapPathFinderData mapPath) : base(mapPath)
+    {
+    }
+
 
     protected override bool Search(PathNode node)
     {

@@ -1,5 +1,9 @@
 public class AStarPathFinder : PathFinderAlgorithm
 {
+    public AStarPathFinder(MapPathFinderData mapPath) : base(mapPath)
+    {
+    }
+
     protected override bool Search(PathNode node)
     {
         while (node != null)

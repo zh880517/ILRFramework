@@ -1,5 +1,28 @@
+using UnityEngine;
+
 public static class SDFUtils
 {
+
+    public static RectInt ToRect(this SDFRawData sdf, TSVector2 start, TSVector2 end)
+    {
+        TSVector2 min = new TSVector2(TSMath.Min(start.x, end.x), TSMath.Min(start.y, end.y));
+        TSVector2 max = new TSVector2(TSMath.Max(start.x, end.x), TSMath.Max(start.y, end.y));
+
+        return new RectInt(sdf.FloorToGrid(min), sdf.CeilingToGrid(max));
+    }
+
+    public static Vector2Int FloorToGrid(this SDFRawData sdf, TSVector2 positin)
+    {
+        positin /= sdf.Grain;
+        return new Vector2Int((int)FP.Floor(positin.x), (int)FP.Floor(positin.y));
+    }
+
+    public static Vector2Int CeilingToGrid(this SDFRawData sdf, TSVector2 positin)
+    {
+        positin /= sdf.Grain;
+        return new Vector2Int((int)FP.Ceiling(positin.x), (int)FP.Ceiling(positin.y));
+    }
+
     /// <summary>
     /// SDF 采样
     /// </summary>

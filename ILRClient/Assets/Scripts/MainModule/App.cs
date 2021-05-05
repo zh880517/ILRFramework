@@ -9,7 +9,7 @@ public class App : MonoBehaviour
 #if UNITY_EDITOR
         Hotfix.InitByPath("BuildOutput/", "Hotfix");
 #else
-        Hotfix.Init(Resources.Load<TextAsset>("HotFix.dll").bytes, null);
+        Hotfix.Init(Resources.Load<TextAsset>("Data/HotFix.dll").bytes, null);
         
 #endif
     }

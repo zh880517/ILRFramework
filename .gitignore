@@ -69,3 +69,5 @@ sysinfo.txt
 
 # Crashlytics generated file
 ILRClient/Assets/Resources.meta
+ILRClient/Assets/Resources/Data/
+ILRClient/Assets/Resources/Data.meta

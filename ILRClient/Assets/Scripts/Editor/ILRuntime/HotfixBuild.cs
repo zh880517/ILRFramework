@@ -162,7 +162,7 @@ public class HotfixBuild
             {
                 Directory.CreateDirectory("Assets/Resources");
             }
-            File.Copy(DllFullPath, string.Format("Assets/Resources/{0}.bytes", HotfixDll), true);
+            File.Copy(DllFullPath, string.Format("Assets/Resources/Data/{0}.bytes", HotfixDll), true);
         }
     }
 

@@ -13,7 +13,19 @@ public class MapPathFinderData
     public FP Radius { get; private set; }
     private SDFMap map;
 
-    
+    public MapPathFinderData(bool astar)
+    {
+        if (astar)
+        {
+            pathFinder = new AStarPathFinder(this);
+        }
+        else
+        {
+            pathFinder = new JPSPathFinder(this);
+        }
+    }
+
+
     public bool Find(TSVector2 start, TSVector2 end, List<TSVector2> path)
     {
         var startNode = GetNode(start);

@@ -1,9 +1,9 @@
 {
-    "name": "Editor.Utils",
-    "references": [],
-    "includePlatforms": [
-        "Editor"
+    "name": "Framework.Logic",
+    "references": [
+        "Thirdparty"
     ],
+    "includePlatforms": [],
     "excludePlatforms": [],
     "allowUnsafeCode": false,
     "overrideReferences": false,

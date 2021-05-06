@@ -6,17 +6,18 @@ using System.Collections.Generic;
 public class PackageBundle : IBundle
 {
     private readonly int nameHash;
+    private readonly string name;
     private readonly string path;
     private AssetBundle bundle;
     private AssetLoadRequest loadRequest;
     private readonly List<IBundle> depends = new List<IBundle>();
 
-    public bool LoadFinish => bundle != null;
-    public int NameHash => nameHash;
-    public string Path => path;
+    public string Name => name;
+    public bool LoadFinish => loadRequest == null;
 
     public PackageBundle(string name, string path)
     {
+        this.name = name;
         nameHash = Animator.StringToHash(name);
         this.path = path;
     }
@@ -43,12 +44,20 @@ public class PackageBundle : IBundle
             {
                 yield return loadRequest;
                 bundle = loadRequest.bundle;
+                loadRequest = null;
             }
-            yield return new WaitUntil(() => !depends.Exists(it => !it.LoadFinish));
+
+            foreach (var bundle in depends)
+            {
+                if (bundle is PackageBundle pakBundle && pakBundle.loadRequest != null)
+                {
+                    yield return pakBundle.loadRequest;
+                }
+            }
         }
     }
 
-    public IEnumerator LoadAsset<T>(string asset, Action<T, string> func) where T : UnityEngine.Object
+    public IEnumerator LoadAsset<T>(string asset, int key, Action<T, int, string> func) where T : UnityEngine.Object
     {
         if (bundle == null)
             yield return Load();
@@ -56,11 +65,11 @@ public class PackageBundle : IBundle
         {
             var req = bundle.LoadAssetAsync<T>(asset);
             yield return req;
-            func?.Invoke(req.asset as T, asset);
+            func?.Invoke(req.asset as T, key, asset);
         }
         else
         {
-            func?.Invoke(null, asset);
+            func?.Invoke(null, key, asset);
         }
     }
 

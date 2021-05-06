@@ -3,12 +3,11 @@ using UnityEngine;
 
 public interface IBundle
 {
-    int NameHash { get; }
-    string Path { get; }
+    string Name { get; }
     void AddDepend(IBundle bundle);
     IEnumerator Load();
     bool LoadFinish { get; }
-    IEnumerator LoadAsset<T>(string asset, System.Action<T, string> func) where T : Object;
+    IEnumerator LoadAsset<T>(string asset, int key, System.Action<T, int, string> func) where T : Object;
 
     void UnLoad();
 }

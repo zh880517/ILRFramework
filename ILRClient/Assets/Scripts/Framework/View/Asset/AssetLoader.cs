@@ -24,12 +24,34 @@ public class AssetLoader : MonoBehaviour
         _instance = null;
     }
 
-    private Dictionary<int, AssetLoadRequest> loadingRequests = new Dictionary<int, AssetLoadRequest>();
-    private Queue<int> waits = new Queue<int>();
-    const int QueueMaxCount = 40;
-    private int loadCount = 0;
+    private readonly Dictionary<int, AssetLoadRequest> loadingRequests = new Dictionary<int, AssetLoadRequest>();
+    private readonly Queue<int> waits = new Queue<int>();
 
-    uint version = 0;
+#if !UNITY_EDITOR && UNITY_ANDROID
+    public const int QueueMaxCount = 40;
+#else
+    public const int QueueMaxCount = 0;
+#endif
+
+    private int loadCoroutineCount = 0;
+
+    //Android覆盖安装的时候+1，防止新包加载的时候从缓存加载不从安装包加载，省去加载的时候记录hash和crc的麻烦
+    public uint CacheVersion = 0;
+
+    public static void StopAll()
+    {
+        if (_instance != null)
+        {
+            _instance.StopAllCoroutines();
+            foreach (var kv in _instance.loadingRequests)
+            {
+                kv.Value.Abort();
+            }
+            _instance.loadingRequests.Clear();
+            _instance.waits.Clear();
+            Instance.loadCoroutineCount = 0;
+        }
+    }
 
     public AssetLoadRequest Load(int hasId,string path)
     {
@@ -43,7 +65,7 @@ public class AssetLoader : MonoBehaviour
         };
         loadingRequests.Add(hasId, request);
         waits.Enqueue(hasId);
-        if (QueueMaxCount <= 0 && loadCount < QueueMaxCount)
+        if (QueueMaxCount <= 0 && loadCoroutineCount < QueueMaxCount)
         {
             StartCoroutine(DoLoad());
         }
@@ -60,51 +82,67 @@ public class AssetLoader : MonoBehaviour
                 yield return LoadAssetBundle(id, request);
             }
         }
-        --loadCount;
+        --loadCoroutineCount;
     }
 
     private IEnumerator LoadAssetBundle(int id, AssetLoadRequest request)
     {
-#if UNITY_EDITOR || !UNITY_ANDROID
-        yield return LoadNoneCache(id, request);
-#else
-
+#if !UNITY_EDITOR && UNITY_ANDROID
+        request.WebLoad = true;
 #endif
-        if (request.bundle != null)
+        string hotPatchPath = ResFileUtil.FindHotPathFilePath(request.path);
+        if (hotPatchPath != null)
         {
-            string hotPatchPath = ResFileUtil.FindHotPathFilePath(request.path);
-            if (hotPatchPath != null)
+            request.path = hotPatchPath;
+            request.WebLoad = false;
+        }
+        else
+        {
+            if (request.WebLoad)
             {
-                yield return LoadNoneCache(id, request);
+                request.path = ResPathUtil.GetStreamAssetFileUrl(request.path, false);
+            }
+            else
+            {
+                request.path = ResPathUtil.GetStreamAssetFilePath(request.path);
             }
         }
+        if (request.WebLoad)
+        {
+            yield return LoadByWebRequest(request);
+        }
+        else
+        {
+            yield return LoadByFile(request);
+        }
+        request.LoadFinish = true;
+        loadingRequests.Remove(id);
     }
 
-    private IEnumerator LoadByCache(int id, AssetLoadRequest request)
+    private IEnumerator LoadByWebRequest(AssetLoadRequest request)
     {
-        string url = ResPathUtil.GetStreamAssetFileUrl(request.path, false);
-        UnityWebRequest download = UnityWebRequestAssetBundle.GetAssetBundle(url, version, 0);
+        UnityWebRequest download = UnityWebRequestAssetBundle.GetAssetBundle(request.path, CacheVersion, 0);
+        request.webRequest = download;
         yield return download.SendWebRequest();
         if (download.result == UnityWebRequest.Result.Success)
         {
             request.bundle = DownloadHandlerAssetBundle.GetContent(download);
         }
+        request.webRequest = null;
         if (request.bundle == null)
         {
             Debug.LogError("AssetBundle 加载失败 => " + request.path);
         }
     }
 
-    private IEnumerator LoadNoneCache(int id, AssetLoadRequest request)
+    private IEnumerator LoadByFile( AssetLoadRequest request)
     {
-        string path = ResPathUtil.GetStreamAssetFilePath(request.path);
-        var abcr = AssetBundle.LoadFromFileAsync(path);
+        var abcr = AssetBundle.LoadFromFileAsync(request.path);
         yield return abcr;
         request.bundle = abcr.assetBundle;
         if (request.bundle == null)
         {
             Debug.LogError("AssetBundle 加载失败 => " + request.path);
         }
-
     }
 }

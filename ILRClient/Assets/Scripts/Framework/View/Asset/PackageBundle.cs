@@ -1,26 +1,50 @@
 using System;
 using System.Collections;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class PackageBundle : IBundle
 {
+    private readonly int nameHash;
+    private readonly string path;
     private AssetBundle bundle;
-    private bool isLoading;
-    public bool LoadFinish => !isLoading || bundle != null;
+    private AssetLoadRequest loadRequest;
+    private readonly List<IBundle> depends = new List<IBundle>();
+
+    public bool LoadFinish => bundle != null;
+    public int NameHash => nameHash;
+    public string Path => path;
+
+    public PackageBundle(string name, string path)
+    {
+        nameHash = Animator.StringToHash(name);
+        this.path = path;
+    }
+
+    public void AddDepend(IBundle bundle)
+    {
+        depends.Add(bundle);
+    }
+
     public IEnumerator Load()
     {
         if (bundle == null)
         {
-            if (isLoading)
+            if (loadRequest == null)
             {
-                yield return new WaitUntil(() => LoadFinish);
+                foreach (var bundle in depends)
+                {
+                    bundle.Load();
+                }
+                loadRequest = AssetLoader.Instance.Load(nameHash, path);
             }
-            else
+
+            if(loadRequest != null)
             {
-                isLoading = true;
-                //todo：添加到加载队列
-                isLoading = false;
+                yield return loadRequest;
+                bundle = loadRequest.bundle;
             }
+            yield return new WaitUntil(() => !depends.Exists(it => !it.LoadFinish));
         }
     }
 

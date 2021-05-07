@@ -13,7 +13,7 @@ public class EditorBundle : IBundle
 
     public bool LoadFinish => isFinish;
 
-    public EditorBundle(string name, List<string> files)
+    public EditorBundle(string name, IEnumerable<string> files)
     {
         this.name = name;
         foreach (var file in files)

@@ -24,16 +24,14 @@ public class AssetLoader : MonoBehaviour
         _instance = null;
     }
 
-    private readonly Dictionary<int, AssetLoadRequest> loadingRequests = new Dictionary<int, AssetLoadRequest>();
+    private readonly Dictionary<int, AssetBundleLoadRequest> loadingRequests = new Dictionary<int, AssetBundleLoadRequest>();
     private readonly Queue<int> waits = new Queue<int>();
+    private readonly Queue<System.Func<IEnumerator>> asyncTasks = new Queue<System.Func<IEnumerator>>();
 
-#if !UNITY_EDITOR && UNITY_ANDROID
     public const int QueueMaxCount = 40;
-#else
-    public const int QueueMaxCount = 0;
-#endif
 
     private int loadCoroutineCount = 0;
+    private int taskCoroutineCount = 0;
 
     //Android覆盖安装的时候+1，防止新包加载的时候从缓存加载不从安装包加载，省去加载的时候记录hash和crc的麻烦
     public uint CacheVersion = 0;
@@ -49,31 +47,56 @@ public class AssetLoader : MonoBehaviour
             }
             _instance.loadingRequests.Clear();
             _instance.waits.Clear();
+            _instance.asyncTasks.Clear();
             Instance.loadCoroutineCount = 0;
         }
     }
 
-    public AssetLoadRequest Load(int hasId,string path)
+    public AssetBundleLoadRequest Load(int hasId,string path)
     {
         if (loadingRequests.TryGetValue(hasId, out var request))
         {
             return request;
         }
-        request = new AssetLoadRequest
+        request = new AssetBundleLoadRequest
         {
             path = path
         };
         loadingRequests.Add(hasId, request);
         waits.Enqueue(hasId);
-        if (QueueMaxCount <= 0 && loadCoroutineCount < QueueMaxCount)
+        if (loadCoroutineCount < QueueMaxCount)
         {
             StartCoroutine(DoLoad());
         }
         return request;
     }
 
+    public void AddTask(System.Func<IEnumerator> task)
+    {
+        asyncTasks.Enqueue(task);
+        if (taskCoroutineCount < QueueMaxCount)
+        {
+            StartCoroutine(DoTask());
+        }
+    }
+
+    private IEnumerator DoTask()
+    {
+        ++taskCoroutineCount;
+        while (asyncTasks.Count > 0)
+        {
+            var task = asyncTasks.Dequeue();
+            if (task != null)
+            {
+                yield return task();
+            }
+        }
+        --taskCoroutineCount;
+    }
+
     private IEnumerator DoLoad()
     {
+        ++loadCoroutineCount;
         while (waits.Count > 0)
         {
             int id = waits.Dequeue();
@@ -85,7 +108,7 @@ public class AssetLoader : MonoBehaviour
         --loadCoroutineCount;
     }
 
-    private IEnumerator LoadAssetBundle(int id, AssetLoadRequest request)
+    private IEnumerator LoadAssetBundle(int id, AssetBundleLoadRequest request)
     {
 #if !UNITY_EDITOR && UNITY_ANDROID
         request.WebLoad = true;
@@ -119,7 +142,7 @@ public class AssetLoader : MonoBehaviour
         loadingRequests.Remove(id);
     }
 
-    private IEnumerator LoadByWebRequest(AssetLoadRequest request)
+    private IEnumerator LoadByWebRequest(AssetBundleLoadRequest request)
     {
         UnityWebRequest download = UnityWebRequestAssetBundle.GetAssetBundle(request.path, CacheVersion, 0);
         request.webRequest = download;
@@ -135,7 +158,7 @@ public class AssetLoader : MonoBehaviour
         }
     }
 
-    private IEnumerator LoadByFile( AssetLoadRequest request)
+    private IEnumerator LoadByFile( AssetBundleLoadRequest request)
     {
         var abcr = AssetBundle.LoadFromFileAsync(request.path);
         yield return abcr;

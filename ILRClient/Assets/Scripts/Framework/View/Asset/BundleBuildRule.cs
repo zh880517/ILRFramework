@@ -20,6 +20,13 @@ public class BundleBuildRule
     public const string SaveFile = "ProjectSettings/BundleBuildConfig.json";
     public List<BundlePackage> Packages = new List<BundlePackage>();
 
+    public void Collection(Dictionary<string, HashSet<string>> bundles)
+    {
+        foreach (var pkg in Packages)
+        {
+            pkg.Collection(bundles);
+        }
+    }
 
     public void Save()
     {

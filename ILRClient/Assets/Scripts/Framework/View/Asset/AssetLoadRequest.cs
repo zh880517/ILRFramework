@@ -1,21 +1,12 @@
-using UnityEngine.Networking;
 using UnityEngine;
 
-public class AssetLoadRequest : CustomYieldInstruction
+public class AssetLoadRequest<T> : CustomYieldInstruction where T : Object
 {
-    public AssetBundle bundle;
-    public string path;
-    public bool LoadFinish;
-    public bool WebLoad;
-    public UnityWebRequest webRequest;
-    public override bool keepWaiting => !LoadFinish;
+    public override bool keepWaiting => !LoadFinsh;
+    public string BundleName;
+    public string AssetName;
+    public bool LoadFinsh;
+    public T Asset;
 
-    public void Abort()
-    {
-        if (webRequest != null)
-        {
-            webRequest.Abort();
-            webRequest = null;
-        }
-    }
+    public static AssetLoadRequest<T> Empty = new AssetLoadRequest<T> { LoadFinsh = true };
 }

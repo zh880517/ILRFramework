@@ -40,6 +40,12 @@ public class EditorBundle : IBundle
     {
         //防止部分依赖异步处理的逻辑直接回调造成错误
         yield return new WaitForEndOfFrame();
+        T obj = Load<T>(asset);
+        func.Invoke(obj, key, asset);
+    }
+
+    private T Load<T>(string asset) where T : UnityEngine.Object
+    {
         T obj = default;
         if (nameToPath.TryGetValue(asset, out string filePath))
         {
@@ -51,7 +57,13 @@ public class EditorBundle : IBundle
         {
             Debug.LogErrorFormat("{0}不存在, Type = {1}, Bundle = {2}", asset, typeof(T), name);
         }
-        func.Invoke(obj, key, asset);
+        return obj;
+    }
+
+    public void HandleRequest<T>(AssetLoadRequest<T> requst) where T : UnityEngine.Object
+    {
+        requst.Asset = Load<T>(requst.AssetName);
+        requst.LoadFinsh = true;
     }
 
     public void UnLoad()

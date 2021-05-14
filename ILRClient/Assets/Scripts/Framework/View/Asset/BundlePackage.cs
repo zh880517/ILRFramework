@@ -10,7 +10,7 @@ public enum BundleGroupType
     UI,
     Atals,
 }
-
+[System.Serializable]
 public class BundlePackage
 {
     public BundleGroupType Group;
@@ -32,6 +32,8 @@ public class BundlePackage
                 var files = Directory.GetFiles(FolderPath, pattern, IncludeChildren ? SearchOption.AllDirectories : SearchOption.TopDirectoryOnly);
                 foreach (var file in files)
                 {
+                    if (file.EndsWith(".meta"))
+                        continue;
                     string fileName = Path.GetFileNameWithoutExtension(file);
                     string bundleName = ToBundleName(fileName);
                     if (!bundles.TryGetValue(bundleName, out var list))
@@ -52,20 +54,22 @@ public class BundlePackage
             }
             foreach (var dir in dirs)
             {
-                string bundleName = ToBundleName(Path.GetDirectoryName(dir));
+                string bundleName = ToBundleName(Path.GetFileName(dir));
                 bundles.TryGetValue(bundleName, out var list);
                 foreach (var pattern in patterns)
                 {
                     var files = Directory.GetFiles(dir, pattern);
                     if (files.Length > 0)
                     {
-                        if (list != null)
+                        if (list == null)
                         {
                             list = new HashSet<string>();
                             bundles.Add(bundleName, list);
                         }
                         foreach (var file in files)
                         {
+                            if (file.EndsWith(".meta"))
+                                continue;
                             list.Add(NormalizePath(file));
                         }
                     }

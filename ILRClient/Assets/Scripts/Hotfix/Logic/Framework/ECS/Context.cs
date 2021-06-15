@@ -107,5 +107,12 @@ namespace ECS.Core
             collectors[ComponentIdentity<T>.Id].RemoveAll();
         }
 
+        public void OnTickEnd()
+        {
+            for (int i=0; i<collectors.Count; ++i)
+            {
+                collectors[i].OnTickEnd();
+            }
+        }
     }
 }

@@ -3,9 +3,9 @@ namespace ECS.Core
     public abstract class GroupExecuteSystem<TEntity, TComponent> : IExecuteSystem where TComponent : class, IComponent, new() where TEntity : Entity
     {
         private readonly Group<TComponent> group;
-        public GroupExecuteSystem(TContext<TEntity> context)
+        public GroupExecuteSystem(TContext<TEntity> context, ComponentStatus status)
         {
-            group = context.CreatGroup<TComponent>();
+            group = context.CreatGroup<TComponent>(status);
         }
 
         public void OnExecute()

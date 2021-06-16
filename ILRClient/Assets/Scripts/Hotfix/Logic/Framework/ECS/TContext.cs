@@ -32,17 +32,6 @@ namespace ECS.Core
             return Find(id) as TEntity;
         }
 
-        public TEntity FindComponent<T>(ref int startIndex, out T component, Func<T, bool> match = null) where T : class, IComponent, new()
-        {
-            var collector = collectors[ComponentIdentity<T>.Id] as IComponentCollectorT<T>;
-            return collector.Find(ref startIndex, ComponentStatus.Normal, out component, match) as TEntity;
-        }
-
-        public Group<T> CreatGroup<T>(ComponentStatus status = ComponentStatus.Normal) where T : class, IComponent, new()
-        {
-            return new Group<T>(collectors[ComponentIdentity<T>.Id] as IComponentCollectorT<T>, status);
-        }
-
         public ECPair<TEntity, T> GetUniquePair<T>() where T : class, IComponent, IUnique, new()
         {
             if (!ComponentIdentity<T>.Unique)
@@ -65,6 +54,36 @@ namespace ECS.Core
             return collector.Get();
         }
 
+        public int RegisterReactiveGroup<T>() where T : class, IComponent, new()
+        {
+            groups.Add(0);
+            return groups.Count - 1;
+        }
+
+        public ReactiveGroup<TEntity, T> GetReactiveGroup<T>(int index) where T : class, IComponent, new()
+        {
+            uint version = groups[index];
+            versionModify = true;
+            return new ReactiveGroup<TEntity, T>(index, version, this);
+        }
+
+        public Group<TEntity, TComponent> CreatGroup<TComponent>(Func<TComponent, bool> condition = null) where TComponent : class, IComponent, new()
+        {
+            return new Group<TEntity, TComponent>(this, condition);
+        }
+
+        public EntityFindResult<T> Find<T>(int startIndex, uint version, Func<T, bool> condition = null, int groupIndex = -1) where T : class, IComponent, new()
+        {
+            int id = ComponentIdentity<T>.Id;
+            var collector = collectors[id] as IComponentCollectorT<T>;
+            var result = collector.Find(startIndex, version, condition);
+            if (groupIndex >= 0)
+            {
+                if (groups[groupIndex] < result.Version)
+                    groups[groupIndex] = result.Version;
+            }
+            return result;
+        }
     }
 
 }

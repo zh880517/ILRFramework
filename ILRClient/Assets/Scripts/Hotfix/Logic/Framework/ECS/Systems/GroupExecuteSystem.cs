@@ -2,21 +2,20 @@ namespace ECS.Core
 {
     public abstract class GroupExecuteSystem<TEntity, TComponent> : IExecuteSystem where TComponent : class, IComponent, new() where TEntity : Entity
     {
-        private readonly Group<TComponent> group;
-        public GroupExecuteSystem(TContext<TEntity> context, ComponentStatus status)
+        private readonly int groupId;
+        protected TContext<TEntity> context;
+        public GroupExecuteSystem(TContext<TEntity> context)
         {
-            group = context.CreatGroup<TComponent>(status);
+            groupId = context.RegisterReactiveGroup<TComponent>();
+            this.context = context;
         }
 
         public void OnExecute()
         {
-            if (group.Count > 0)
+            var group = context.GetReactiveGroup<TComponent>(groupId);
+            while(group.TryGet(out var entity, out TComponent component))
             {
-                while (group.TryGet(out Entity entity, out TComponent component))
-                {
-                    OnExecuteEntity(entity as TEntity, component);
-                }
-                group.Reset();
+                OnExecuteEntity(entity, component);
             }
         }
 

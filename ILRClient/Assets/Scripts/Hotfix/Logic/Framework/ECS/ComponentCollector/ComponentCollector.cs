@@ -7,6 +7,7 @@ namespace ECS.Core
         private List<ComponentEntity<T>> units = new List<ComponentEntity<T>>();
         private Queue<int> unUsedIdxs = new Queue<int>();
         private Dictionary<int, int> idIdxMap = new Dictionary<int, int>();//EntityId => 数组索引
+        private uint Version;
         public int Count { get; private set; }
 
 
@@ -22,7 +23,7 @@ namespace ECS.Core
             return unit;
         }
 
-        public IComponent Add(Entity entity, bool forceModify)
+        public IComponent Add(Entity entity, uint version, bool forceModify)
         {
             if (idIdxMap.TryGetValue(entity.Id, out int idx))
             {
@@ -31,7 +32,8 @@ namespace ECS.Core
             var unit = Create();
             idIdxMap.Add(entity.Id, idx);
             unit.Owner = entity;
-            unit.Status = ComponentStatus.Add;
+            unit.Version = version;
+            Version = version;
             ++Count;
             return unit.Component;
         }
@@ -45,12 +47,13 @@ namespace ECS.Core
             return null;
         }
 
-        public IComponent Modify(Entity entity)
+        public IComponent Modify(Entity entity, uint version)
         {
             if (idIdxMap.TryGetValue(entity.Id, out int idx))
             {
                 var unit = units[idx];
-                unit.Modify();
+                unit.Version = version;
+                Version = version;
                 return unit.Component;
             }
             return null;
@@ -86,48 +89,26 @@ namespace ECS.Core
             }
         }
 
-        public Entity Find(ref int startIndex, ComponentStatus status, System.Func<T, bool> condition)
+        public EntityFindResult<T> Find(int startIndex, uint version, System.Func<T, bool> condition = null)
         {
-            for (int i=startIndex; i<units.Count; ++i)
+            if (Version > version)
             {
-                var unit = units[i];
-                if (unit.Owner != null && unit.Status >= status && (condition == null || condition(unit.Component)))
+                for (int i = startIndex; i < units.Count; ++i)
                 {
-                    startIndex = i + 1;
-                    return unit.Owner;
+                    var unit = units[i];
+                    if (unit.Owner != null && unit.Version > version && (condition == null || condition(unit.Component)))
+                    {
+                        return new EntityFindResult<T>()
+                        {
+                            Id = unit.Owner.Id,
+                            Index = i + 1,
+                            Version = unit.Version,
+                            Component = unit.Component
+                        };
+                    }
                 }
             }
-            startIndex = units.Count;
-            return null;
-        }
-
-
-        public Entity Find(ref int startIndex, ComponentStatus status, out T component, System.Func<T, bool> condition)
-        {
-            for (int i = startIndex; i < units.Count; ++i)
-            {
-                var unit = units[i];
-                if (unit.Owner != null && unit.Status >= status  && (condition == null || condition(unit.Component)))
-                {
-                    startIndex = i + 1;
-                    component = unit.Component;
-                    return unit.Owner;
-                }
-            }
-            startIndex = units.Count;
-            component = null;
-            return null;
-        }
-
-        public void OnTickEnd()
-        {
-            if (Count > 0)
-            {
-                for (int i=0; i<units.Count; ++i)
-                {
-                    units[i].Status = ComponentStatus.Normal;
-                }
-            }
+            return new EntityFindResult<T>();
         }
     }
 

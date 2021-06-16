@@ -1,28 +1,26 @@
 namespace ECS.Core
 {
-
-    public enum ComponentStatus
-    {
-        Normal = 0,
-        Modify = 1,
-        Add = 2,
-    }
-
     public interface IComponentCollector
     {
         int Count { get; }
-        IComponent Add(Entity entity, bool forceModify);
+        IComponent Add(Entity entity, uint version, bool forceModify);
         IComponent Get(Entity entity);
         void Remove(Entity entity);
         void RemoveAll();
-        IComponent Modify(Entity entity);
-        void OnTickEnd();
+        IComponent Modify(Entity entity, uint version);
+    }
+
+    public struct EntityFindResult<TComponent> where TComponent : IComponent
+    {
+        public int Id;
+        public int Index;
+        public uint Version;
+        public TComponent Component;
     }
 
     public interface IComponentCollectorT<T> : IComponentCollector where T : class, IComponent, new()
     {
-        Entity Find(ref int startIndex, ComponentStatus status, System.Func<T, bool> condition = null);
-        Entity Find(ref int startIndex, ComponentStatus status, out T component, System.Func<T,bool> condition = null);
+        EntityFindResult<T> Find(int startIndex, uint version, System.Func<T, bool> condition = null);
     }
 
 
@@ -30,23 +28,13 @@ namespace ECS.Core
     {
         public T Component = new T();
         public Entity Owner;
-        public ComponentStatus Status;
+        public uint Version;
 
-        public void Modify()
-        {
-            if (Status == ComponentStatus.Normal)
-                Status = ComponentStatus.Modify;
-        }
-
-        public void OnTickEnd()
-        {
-            Status = ComponentStatus.Normal;
-        }
 
         public void Reset()
         {
             Owner = null;
-            Status = ComponentStatus.Normal;
+            Version = 0;
             if (Component is IReset resetComp)
                 resetComp.Reset();
         }

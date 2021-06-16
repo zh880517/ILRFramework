@@ -1,4 +1,4 @@
-using System.Collections.Generic;
+using System;
 
 namespace ECS.Core
 {
@@ -6,7 +6,7 @@ namespace ECS.Core
     {
         public int Count => Component.Owner != null ? 1 : 0;
         private ComponentEntity<T> Component = new ComponentEntity<T>();
-        public IComponent Add(Entity entity, bool forceModify)
+        public IComponent Add(Entity entity, uint version, bool forceModify)
         {
             if (Component.Owner == entity)
             {
@@ -17,7 +17,7 @@ namespace ECS.Core
                 Remove(entity);
             }
             Component.Owner = entity;
-            Component.Status = ComponentStatus.Add;
+            Component.Version = version;
             return Component.Component;
         }
 
@@ -46,35 +46,11 @@ namespace ECS.Core
             return new ECPair<TEntity, T>();
         }
 
-        public Entity Find(ref int startIndex, ComponentStatus status, out T component, System.Func<T, bool> condition)
-        {
-            if (startIndex == 0 && Component.Owner != null && status <= Component.Status && (condition == null || condition(Component.Component)))
-            {
-                startIndex = 1;
-                component = Component.Component;
-                return Component.Owner;
-            }
-            component = null;
-            startIndex = 1;
-            return null;
-        }
-
-        public Entity Find(ref int startIndex, ComponentStatus status, System.Func<T, bool> condition)
-        {
-            if (startIndex == 0 && Component.Owner != null && status <= Component.Status && (condition == null || condition(Component.Component)))
-            {
-                startIndex = 1;
-                return Component.Owner;
-            }
-            startIndex = 1;
-            return null;
-        }
-
-        public IComponent Modify(Entity entity)
+        public IComponent Modify(Entity entity, uint version)
         {
             if (Component.Owner == entity)
             {
-                Component.Modify();
+                Component.Version = version;
                 return Component.Component;
             }
             return null;
@@ -84,7 +60,6 @@ namespace ECS.Core
         {
             if (entity == Component.Owner)
             {
-                int id = Component.Owner.Id;
                 Component.Reset();
             }
         }
@@ -93,14 +68,21 @@ namespace ECS.Core
         {
             if (Component.Owner != null)
             {
-                int id = Component.Owner.Id;
                 Component.Reset();
             }
         }
 
-        public void OnTickEnd()
+        public EntityFindResult<T> Find(int startIndex, uint version, Func<T, bool> condition = null)
         {
-            Component.Status = ComponentStatus.Normal;
+            var result = new EntityFindResult<T>();
+            if (startIndex == 0 && Component.Owner != null && version < Component.Version && (condition == null || condition(Component.Component)))
+            {
+                result.Component = Component.Component;
+                result.Version = Component.Version;
+                result.Index = 1;
+                result.Component = Component.Component;
+            }
+            return result;
         }
     }
 

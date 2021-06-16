@@ -1,22 +1,18 @@
 using TComponent = LogicDestroy;
 public class LogicDestroyCleanupSystem : ECS.Core.ICleanupSystem
 {
-    private readonly ECS.Core.Group<TComponent> group;
+    private LogicContext context;
     public LogicDestroyCleanupSystem(LogicContext context)
     {
-        group = context.CreatGroup<TComponent>();
+        this.context = context;
     }
     public void OnCleanup()
     {
-        if (group.Count > 0)
+        var group = context.CreatGroup<TComponent>();
+        while (group.TryGet(out var entity, out _))
         {
-            while (group.TryGet(out ECS.Core.Entity entity, out _))
-            {
-                entity.Destroy();
-            }
-            group.Reset();
+            entity.Destroy();
         }
-        
     }
     
 }

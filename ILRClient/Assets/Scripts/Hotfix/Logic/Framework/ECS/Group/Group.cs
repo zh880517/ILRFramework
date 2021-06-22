@@ -4,26 +4,30 @@ namespace ECS.Core
 {
     public struct Group<TEntity, TComponent>  where TComponent : class, IComponent, new() where TEntity : Entity
     {
-        private TContext<TEntity> Context;
+        private ContextT<TEntity> Context;
         private int Index;
         private Func<TComponent, bool> Condition;
-        public Group(TContext<TEntity> context, Func<TComponent, bool> condition)
+        public TEntity Entity { get; private set; }
+        public TComponent Component { get; private set; }
+        public Group(ContextT<TEntity> context, Func<TComponent, bool> condition)
         {
             Index = 0;
             Context = context;
             Condition = condition;
+            Entity = null;
+            Component = default;
         }
 
-        public bool TryGet(out TEntity entity, out TComponent component)
+        public bool MoveNext()
         {
             var result = Context.Find(Index, 0, Condition);
-            component = result.Component;
+            Component = result.Component;
             if (result.Id == 0)
             {
-                entity = null;
+                Entity = null;
                 return false;
             }
-            entity = Context.FindEntity(result.Id);
+            Entity = Context.FindEntity(result.Id);
             Index = result.Index;
             return true;
         }

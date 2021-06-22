@@ -1,5 +1,6 @@
-﻿using System;
+using System;
 using System.IO;
+using System.Linq;
 using UnityEditor;
 using UnityEngine;
 
@@ -91,7 +92,7 @@ public class ECSManagerWindow : EditorWindow
                 string fileName = Path.GetFileName(select);
                 if (!fileName.EndsWith("ECS.cs"))
                 {
-                    EditorUtility.DisplayDialog("提示", "无效的文件，ECS文件是以{{ContentName}}ECS.cs命名的", "确定");
+                    EditorUtility.DisplayDialog("提示", "无效的文件，ECS文件是以{ContentName}ECS.cs命名的", "确定");
                     return;
                 }
                 string name = fileName.Substring(0, fileName.Length - 6);
@@ -125,6 +126,31 @@ public class ECSManagerWindow : EditorWindow
                         continue;
                     }
                 }
+                using (new EditorGUILayout.HorizontalScope())
+                {
+                    if (!string.IsNullOrEmpty(context.UpLevelContext))
+                    {
+                        GUILayout.Label("上层Context: ");
+                        GUILayout.Label(context.UpLevelContext);
+                    }
+                    if (GUILayout.Button("选择上层Context"))
+                    {
+                        var names = ECSConfig.Instance.Contexts.Where(it => it.Name != context.Name && context.Name != it.UpLevelContext).Select(it => it.Name).ToArray();
+                        if (names.Length > 0)
+                        {
+                            GenericMenu generic = new GenericMenu();
+                            foreach (var name in names)
+                            {
+                                generic.AddItem(new GUIContent(name), name == context.UpLevelContext, () => 
+                                {
+                                    ECSConfig.MakeModify("set up level context");
+                                    context.UpLevelContext = name;
+                                });
+                            }
+                            generic.ShowAsContext();
+                        }
+                    }
+                }
                 GUILayout.Space(5);
                 if (GUILayout.Button(context.DirectoryPath, EditorStyles.linkLabel))
                 {
@@ -134,6 +160,10 @@ public class ECSManagerWindow : EditorWindow
                     var obj = AssetDatabase.LoadMainAssetAtPath(selectPath);
                     EditorGUIUtility.PingObject(obj);
                     Selection.activeObject = obj;
+                }
+                if (GUILayout.Button("重新生成ECS文件"))
+                {
+                    context.GenECSFile(true);
                 }
             }
             GUILayout.Space(10);

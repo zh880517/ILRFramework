@@ -5,25 +5,30 @@ namespace ECS.Core
         private int Index;
         private int GroupIndex;
         private uint Version;
-        private TContext<TEntity> Context;
-        public ReactiveGroup(int groupIndex, uint version, TContext<TEntity> context)
+        private ContextT<TEntity> Context;
+        public TEntity Entity { get; private set; }
+        public TComponent Component { get; private set; }
+
+        public ReactiveGroup(int groupIndex, uint version, ContextT<TEntity> context)
         {
             Version = version;
             Context = context;
             Index = 0;
             GroupIndex = groupIndex;
+            Entity = null;
+            Component = default;
         }
 
-        public bool TryGet(out TEntity entity, out TComponent component)
+        public bool MoveNext()
         {
             var result = Context.Find<TComponent>(Index, Version, null, GroupIndex);
-            component = result.Component;
+            Component = result.Component;
             if (result.Id == 0)
             {
-                entity = null;
+                Entity = null;
                 return false;
             }
-            entity = Context.FindEntity(result.Id);
+            Entity = Context.FindEntity(result.Id);
             Index = result.Index;
             return true;
         }

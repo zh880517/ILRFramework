@@ -2,11 +2,12 @@ public interface IViewComponent : ECS.Core.IComponent
 {
 }
 
-public class ViewEntity : ECS.Core.TEntity<IViewComponent>
+public class ViewEntity : ECS.Core.EntityT<IViewComponent>
 {
     public ViewEntity(ECS.Core.Context context, int id) : base(context, id)
     {
-    } 
+    }
+    
 }
 public static partial class ViewComponents
 {
@@ -14,12 +15,13 @@ public static partial class ViewComponents
     public static int ComponentCount { get; private set; }
     
 }
-public class ViewContext : ECS.Core.TContext<ViewEntity>
+public class ViewContext : ECS.Core.ContextT<ViewEntity>
 {
-    public ViewContext(int componentTypeCount) : base(componentTypeCount, CreatFunc)
+    public LogicContext Logic{ get; private set; }
+    protected ViewContext(int componentTypeCount) : base(componentTypeCount, CreatFunc)
     {
     }
-
+    
     private static ViewEntity CreatFunc(ECS.Core.Context context, int id)
     {
         return new ViewEntity(context, id);
@@ -30,4 +32,9 @@ public class ViewContext : ECS.Core.TContext<ViewEntity>
         ViewComponents.OnContextCreat(contxt);
         return contxt;
     }
+    public void SetLogic( LogicContext logic )
+    {
+        Logic = logic;
+    }
+    
 }

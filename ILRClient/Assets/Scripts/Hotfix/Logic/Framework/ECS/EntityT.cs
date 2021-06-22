@@ -1,8 +1,8 @@
 namespace ECS.Core
 {
-    public class TEntity<TComponent> : Entity where TComponent : IComponent
+    public class EntityT<TComponent> : Entity where TComponent : IComponent
     {
-        public TEntity(Context context, int id) : base(context, id)
+        public EntityT(Context context, int id) : base(context, id)
         {
         }
 

@@ -3,11 +3,13 @@
     "Contexts": [
         {
             "Name": "Logic",
+            "UpLevelContext": "",
             "DirectoryPath": "Assets/Scripts/Hotfix/Logic/ECS/"
         },
         {
             "Name": "View",
-            "DirectoryPath": "Assets/Scripts/Hotfix/View/ECS"
+            "UpLevelContext": "Logic",
+            "DirectoryPath": "Assets/Scripts/Hotfix/View/ECS/"
         }
     ]
 }

@@ -5,7 +5,7 @@ public interface ILogicComponent : ECS.Core.IComponent
 }
 
 
-public class LogicEntity : ECS.Core.TEntity<ILogicComponent>
+public class LogicEntity : ECS.Core.EntityT<ILogicComponent>
 {
     public LogicEntity(ECS.Core.Context context, int id) : base(context, id)
     {
@@ -18,7 +18,7 @@ public static partial class LogicComponents
     public static int ComponentCount { get; private set; }
 }
 
-public class LogicContext : ECS.Core.TContext<LogicEntity>
+public class LogicContext : ECS.Core.ContextT<LogicEntity>
 {
     public LogicContext(int componentTypeCount) : base(componentTypeCount, CreatFunc)
     {

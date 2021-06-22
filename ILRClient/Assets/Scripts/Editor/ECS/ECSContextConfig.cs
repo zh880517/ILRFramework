@@ -6,6 +6,7 @@ using System.Collections.Generic;
 public class ECSContextConfig
 {
     public string Name;
+    public string UpLevelContext;
     public string DirectoryPath;
 
     private List<System.Type> _componentTypes;
@@ -21,11 +22,21 @@ public class ECSContextConfig
         }
     }
 
+    public void GenECSFile(bool force)
+    {
+        var ecsFile = Path.Combine(DirectoryPath, $"{Name}ECS.cs");
+        if (!File.Exists(ecsFile) || force)
+        {
+            var fileContext = ContextGenertor.Gen(Name, UpLevelContext);
+            File.WriteAllText(ecsFile, fileContext, new System.Text.UTF8Encoding(false));
+        }
+    }
+
     public void InitECSDirectory()
     {
         if (string.IsNullOrWhiteSpace(Name) || string.IsNullOrWhiteSpace(DirectoryPath))
         {
-            Debug.LogError("√˚◊÷∫Õ¬∑æ∂≤ª∂‘£¨≥ı ºªØ ß∞‹");
+            Debug.LogError("ÂêçÂ≠óÂíåË∑ØÂæÑ‰∏çÂØπÔºåÂàùÂßãÂåñÂ§±Ë¥•");
             return;
         }
         var dir = new DirectoryInfo(DirectoryPath);
@@ -33,12 +44,7 @@ public class ECSContextConfig
         {
             dir.Create();
         }
-        var ecsFile = Path.Combine(DirectoryPath, $"{Name}ECS.cs");
-        if (!File.Exists(ecsFile))
-        {
-            var fileContext = ContextGenertor.Gen(Name);
-            File.WriteAllText(ecsFile, fileContext, new System.Text.UTF8Encoding(false));
-        }
+        GenECSFile(false);
 
         string[] childrenDir = { "Components", "Systems", "Generates" };
         foreach (var child in childrenDir)

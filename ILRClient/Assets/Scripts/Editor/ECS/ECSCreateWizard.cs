@@ -138,7 +138,7 @@ public class ECSCreateWizard : ScriptableWizard
             GUILayout.Label("系统类型");
             systemType = (ECSSystemGenerateType)EditorGUILayout.EnumPopup(systemType);
         }
-        if (systemType == ECSSystemGenerateType.GroupExecute && componentTypes != null)
+        if (systemType >= ECSSystemGenerateType.GroupExecute && componentTypes != null)
         {
             using (new EditorGUILayout.HorizontalScope())
             {
@@ -247,7 +247,7 @@ public class ECSCreateWizard : ScriptableWizard
         else if (createType == CreateType.System)
         {
             string component = null;
-            if (systemType == ECSSystemGenerateType.GroupExecute && componentTypes != null)
+            if (systemType >= ECSSystemGenerateType.GroupExecute && componentTypes != null)
             {
                 component = componentTypes[componentSelectIdx];
             }

@@ -8,12 +8,12 @@ namespace ECS.Core
         public TComponent Value;
     }
 
-    public class TContext<TEntity> : Context where TEntity : Entity
+    public class ContextT<TEntity> : Context where TEntity : Entity
     {
         protected Func<Context, int, TEntity> creatFacory;
 
         public TEntity Unique { get; private set; }
-        public TContext(int componentTypeCount, Func<Context, int, TEntity> creatFunc) : base(componentTypeCount)
+        public ContextT(int componentTypeCount, Func<Context, int, TEntity> creatFunc) : base(componentTypeCount)
         {
             creatFacory = creatFunc;
             Unique = CreatEntity();

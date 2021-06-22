@@ -5,6 +5,7 @@ public enum ECSSystemGenerateType
     Cleanup,
     TearDown,
     GroupExecute,
+    ReactiveExecute,
 }
 
 public static class SystemGenertor
@@ -31,6 +32,10 @@ public static class SystemGenertor
         {
             GenGroupExecuteSystem(writer, className, context, componentName);
         }
+        else if (type == ECSSystemGenerateType.ReactiveExecute)
+        {
+            GenReactiveExecuteSystem(writer, className, context, componentName);
+        }
         return writer.ToString();
     }
 
@@ -44,12 +49,27 @@ public static class SystemGenertor
         writer.Write($"public class {className} : ECS.Core.GroupExecuteSystem<{context}Entity, TComponent>");
         using (new CodeWriter.Scop(writer))
         {
-            writer.Write($"{context}Context context;").NewLine();
-            writer.Write($"public {className}({context}Context context):base(context, ECS.Core.ComponentStatus.Normal)");
-            using (new CodeWriter.Scop(writer))
-            {
-                writer.Write("this.context = context;");
-            }
+            writer.Write($" private {context}Context Context => context as {context}Context;").NewLine();
+            writer.Write($"public {className}({context}Context context):base(context)");
+            writer.EmptyScop();
+            writer.Write($"protected override void OnExecuteEntity({context}Entity entity, TComponent component)");
+            writer.EmptyScop();
+        }
+    }
+
+    public static void GenReactiveExecuteSystem(CodeWriter writer, string className, string context, string componentName)
+    {
+        if (string.IsNullOrEmpty(componentName))
+        {
+            componentName = $"I{context}Component";
+        }
+        writer.Write($"using TComponent = {componentName};").NewLine();
+        writer.Write($"public class {className} : ECS.Core.ReactiveExecuteSystem<{context}Entity, TComponent>");
+        using (new CodeWriter.Scop(writer))
+        {
+            writer.Write($" private {context}Context Context => context as {context}Context;").NewLine();
+            writer.Write($"public {className}({context}Context context):base(context)");
+            writer.EmptyScop();
             writer.Write($"protected override void OnExecuteEntity({context}Entity entity, TComponent component)");
             writer.EmptyScop();
         }

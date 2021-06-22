@@ -43,24 +43,20 @@ public class ComponentGenerator
 
     private void GenDestroySystem(Type type, CodeWriter writer, string className)
     {
-        writer.Write($"private readonly ECS.Core.Group<TComponent> group;").NewLine();
+        writer.Write($"private readonly {context.Name}Context context;").NewLine();
         writer.Write($"public {className}({context.Name}Context context)");
         using(new CodeWriter.Scop(writer))
         {
-            writer.Write($"group = context.CreatGroup<TComponent>();");
+            writer.Write($"this.context = context;");
         }
         writer.Write($"public void OnCleanup()");
         using (new CodeWriter.Scop(writer)) 
         {
-            writer.Write($"if (group.Count > 0)");
+            writer.Write("var group = context.CreatGroup<TComponent>();").NewLine();
+            writer.Write("while (group.MoveNext())");
             using (new CodeWriter.Scop(writer))
             {
-                writer.Write($"while (group.TryGet(out ECS.Core.Entity entity, out _))");
-                using (new CodeWriter.Scop(writer)) 
-                {
-                    writer.Write("entity.Destroy();");
-                }
-                writer.Write("group.Reset();");
+                writer.Write("group.Entity.Destroy();");
             }
         }
     }
@@ -119,11 +115,11 @@ public class ComponentGenerator
                     
                     if (typeof(ECS.Core.IUnique).IsAssignableFrom(type))
                     {
-                        writer.Write($"context.InitComponentCollector<{type.FullName}>();");
+                        writer.Write($"context.InitUniqueComponentCollector<{type.FullName}>();");
                     }
                     else
                     {
-                        writer.Write($"context.InitUniqueComponentCollector<{type.FullName}>();");
+                        writer.Write($"context.InitComponentCollector<{type.FullName}>();");
                     }
                     if (i < componentTypes.Count - 1)
                     {

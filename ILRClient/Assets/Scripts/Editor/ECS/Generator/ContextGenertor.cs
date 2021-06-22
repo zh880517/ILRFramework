@@ -1,13 +1,13 @@
 public static class ContextGenertor
 {
     
-    public static string Gen(string name)
+    public static string Gen(string name, string upLevelContext)
     {
         CodeWriter writer = new CodeWriter(true);
         writer.Write($"public interface I{name}Component : ECS.Core.IComponent");
         writer.EmptyScop();
 
-        writer.Write($"public class {name}Entity : ECS.Core.TEntity<I{name}Component>");
+        writer.Write($"public class {name}Entity : ECS.Core.EntityT<I{name}Component>");
         using(new CodeWriter.Scop(writer))
         {
             writer.Write($"public {name}Entity(ECS.Core.Context context, int id) : base(context, id)");
@@ -21,9 +21,13 @@ public static class ContextGenertor
             writer.Write($"public static int ComponentCount {{ get; private set; }}").NewLine();
         }
 
-        writer.Write($"public class {name}Context : ECS.Core.TContext<{name}Entity>");
+        writer.Write($"public class {name}Context : ECS.Core.ContextT<{name}Entity>");
         using (new CodeWriter.Scop(writer))
         {
+            if (!string.IsNullOrEmpty(upLevelContext))
+            {
+                writer.Write($"public {upLevelContext}Context {upLevelContext}{{ get; private set; }}").NewLine();
+            }
             //Ctor
             writer.Write($"protected {name}Context(int componentTypeCount) : base(componentTypeCount, CreatFunc)");
             writer.EmptyScop();
@@ -42,6 +46,14 @@ public static class ContextGenertor
                 writer.Write($"var contxt = new {name}Context({name}Components.ComponentCount);").NewLine();
                 writer.Write($"{name}Components.OnContextCreat(contxt);").NewLine();
                 writer.Write("return contxt;");
+            }
+            if (!string.IsNullOrEmpty(upLevelContext))
+            {
+                writer.Write($"public void Set{upLevelContext}( {upLevelContext}Context {upLevelContext.ToLower()} )");
+                using (new CodeWriter.Scop(writer))
+                {
+                    writer.Write($"{upLevelContext} = {upLevelContext.ToLower()};");
+                }
             }
         }
 
